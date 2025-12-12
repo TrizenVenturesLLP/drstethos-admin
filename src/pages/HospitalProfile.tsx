@@ -39,6 +39,9 @@ import {
   sendApprovalEmail,
   sendRejectionEmail,
 } from "@/helpers/emailHelper";
+import {
+  sendApprovalNotification,
+} from "@/helpers/notificationHelper";
 
 interface HospitalProfile {
   id: string;
@@ -148,6 +151,9 @@ const HospitalProfile = () => {
 
       // Update user document with admin information
       const userRef = doc(db, "users", hospital.userId);
+      const userSnap = await getDoc(userRef);
+      const userData = userSnap.data() as any;
+
       await updateDoc(userRef, {
         isVerified: true,
         verifiedAt: verifiedAt,
@@ -176,6 +182,24 @@ const HospitalProfile = () => {
         rejectedByAdminEmail: null,
       });
       console.log("Hospital approved:", hospital.name);
+
+      // Send FCM notification via Cloud Function
+      if (userData?.fcmToken) {
+        try {
+          await sendApprovalNotification({
+            userId: hospital.userId,
+            fcmToken: userData.fcmToken,
+            name: hospital.name,
+            status: "APPROVED",
+            profileType: "HOSPITAL",
+            profileId,
+          });
+          toast.success("Notification sent to hospital");
+        } catch (notifError) {
+          console.error("FCM notification error:", notifError);
+          toast.warning("Profile verified, but notification failed");
+        }
+      }
 
       // Send approval email
       await sendApprovalEmail({
@@ -225,6 +249,9 @@ const HospitalProfile = () => {
 
       // Update user document with rejection reason and admin info
       const userRef = doc(db, "users", hospital.userId);
+      const userSnap = await getDoc(userRef);
+      const userData = userSnap.data() as any;
+
       await updateDoc(userRef, {
         isVerified: false,
         rejectionReason: rejectionReason.trim(),
@@ -248,6 +275,25 @@ const HospitalProfile = () => {
       });
 
       setShowRejectDialog(false);
+
+      // Send FCM notification via Cloud Function
+      if (userData?.fcmToken) {
+        try {
+          await sendApprovalNotification({
+            userId: hospital.userId,
+            fcmToken: userData.fcmToken,
+            name: hospital.name,
+            status: "REJECTED",
+            rejectionReason: rejectionReason.trim(),
+            profileType: "HOSPITAL",
+            profileId,
+          });
+          toast.success("Rejection notification sent to hospital");
+        } catch (notifError) {
+          console.error("FCM notification error:", notifError);
+          toast.warning("Profile rejected, but notification failed");
+        }
+      }
 
       // Send rejection email
       await sendRejectionEmail({

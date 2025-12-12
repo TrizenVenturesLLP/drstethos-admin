@@ -8,6 +8,7 @@ import PrivacyPolicy from "./pages/PrivacyPolicy";
 import DeleteAccount from "./pages/DeleteAccount";
 import TermsForHospitals from "./pages/TermsForHospitals";
 import TermsForDoctors from "./pages/TermsForDoctors";
+import SafetyStandards from "./pages/SafetyStandards";
 import NotFound from "./pages/NotFound";
 import ScrollToTop from "./components/ScrollToTop";
 import AdminLogin from "./pages/AdminLogin";
@@ -32,6 +33,7 @@ const App = () => (
           <Route path="/privacy-policy/delete-account" element={<DeleteAccount />} />
           <Route path="/termsandservices/forhospitals" element={<TermsForHospitals />} />
           <Route path="/termsandservices/fordoctors" element={<TermsForDoctors />} />
+          {/* <Route path="/safety-standards" element={<SafetyStandards />} /> */}
 
           {/* Admin Routes */}
           <Route path="/admin" element={<AdminLogin />} />
