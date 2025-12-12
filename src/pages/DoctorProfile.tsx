@@ -43,6 +43,9 @@ import {
   sendApprovalEmail,
   sendRejectionEmail,
 } from "@/helpers/emailHelper";
+import {
+  sendApprovalNotification,
+} from "@/helpers/notificationHelper";
 
 interface Certificate {
   id: string;
@@ -204,7 +207,7 @@ const DoctorProfile = () => {
       const userSnap = await getDoc(userRef);
       const userData = userSnap.data() as any;
 
-      console.log("User data:"+userData);
+      console.log("User data:" + userData);
 
       await enqueueNotifications(
         doctor.userId,
@@ -214,6 +217,24 @@ const DoctorProfile = () => {
         profileId,
         "APPROVED"
       );
+
+      // Send FCM notification via Cloud Function
+      if (userData?.fcmToken) {
+        try {
+          await sendApprovalNotification({
+            userId: doctor.userId,
+            fcmToken: userData.fcmToken,
+            name: doctor.name,
+            status: "APPROVED",
+            profileType: "DOCTOR",
+            profileId,
+          });
+          toast.success("Notification sent to doctor");
+        } catch (notifError) {
+          console.error("FCM notification error:", notifError);
+          toast.warning("Profile verified, but notification failed");
+        }
+      }
 
       // Send approval email
       await sendApprovalEmail({
@@ -247,6 +268,7 @@ const DoctorProfile = () => {
       const admin = auth.currentUser;
       if (!admin) {
         toast.error("Admin authentication required");
+        setIsProcessing(false);
         return;
       }
 
@@ -276,6 +298,25 @@ const DoctorProfile = () => {
         profileId,
         "REJECTED"
       );
+
+      // Send FCM notification via Cloud Function
+      if (userData?.fcmToken) {
+        try {
+          await sendApprovalNotification({
+            userId: doctor.userId,
+            fcmToken: userData.fcmToken,
+            name: doctor.name,
+            status: "REJECTED",
+            rejectionReason: rejectionReason.trim(),
+            profileType: "DOCTOR",
+            profileId,
+          });
+          toast.success("Rejection notification sent to doctor");
+        } catch (notifError) {
+          console.error("FCM notification error:", notifError);
+          toast.warning("Profile rejected, but notification failed");
+        }
+      }
 
       // Send rejection email
       await sendRejectionEmail({
