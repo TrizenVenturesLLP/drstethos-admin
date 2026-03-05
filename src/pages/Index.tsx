@@ -8,6 +8,7 @@ import ForHospitals from "@/components/ForHospitals";
 import Testimonials from "@/components/Testimonials";
 import Pricing from "@/components/Pricing";
 import AppDownload from "@/components/AppDownload";
+import Support from "@/components/Support";
 import Footer from "@/components/Footer";
 
 const Index = () => {
@@ -31,6 +32,7 @@ const Index = () => {
         <Pricing />
       </div>
       <AppDownload />
+      <Support />
       <Footer />
     </div>
   );

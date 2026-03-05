@@ -93,21 +93,22 @@ const Footer = () => {
               <li className="flex items-start gap-3">
                 <MapPin className="w-5 h-5 flex-shrink-0 mt-0.5 text-primary" />
                 <span className="text-sm">
-                  123 Medical Plaza,<br />
-                  Healthcare District,<br />
-                  Mumbai, India 400001
+                  DRSTETHOS INNOVATIONS LLP<br />
+                  H NO 7-7-14, GARUVU VEEDI,<br />
+                  WARD NO-12, ADJ, Bhimavaram,<br />
+                  West Godavari, Andhra Pradesh, 534201
                 </span>
               </li>
               <li className="flex items-center gap-3">
                 <Phone className="w-5 h-5 flex-shrink-0 text-primary" />
-                <a href="tel:+911234567890" className="text-sm hover:text-white transition-colors">
-                  +91 123 456 7890
+                <a href="tel:+917075355969" className="text-sm hover:text-white transition-colors">
+                  +91 70753 55969
                 </a>
               </li>
               <li className="flex items-center gap-3">
                 <Mail className="w-5 h-5 flex-shrink-0 text-primary" />
-                <a href="mailto:support@drstethos.com" className="text-sm hover:text-white transition-colors">
-                  support@drstethos.com
+                <a href="mailto:stethosabisha@gmail.com" className="text-sm hover:text-white transition-colors">
+                  stethosabisha@gmail.com
                 </a>
               </li>
             </ul>
