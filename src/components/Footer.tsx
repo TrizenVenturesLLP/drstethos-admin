@@ -7,16 +7,16 @@ const Footer = () => {
   return (
     <footer className="bg-gray-900 text-white">
       <div className="container mx-auto px-4 py-12">
-        
+
         {/* Main Footer Content */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-12">
-          
+
           {/* Company Info */}
           <div className="space-y-4">
             <div className="flex items-center gap-2">
-              <img 
-                src="/logo.png" 
-                alt="DrStethos Logo" 
+              <img
+                src="/logo.png"
+                alt="DrStethos Logo"
                 className="w-10 h-10 object-contain"
               />
               <span className="text-2xl font-bold">DrStethos</span>
@@ -24,7 +24,7 @@ const Footer = () => {
             <p className="text-gray-400 text-sm leading-relaxed">
               Connecting doctors with hospitals seamlessly. Your trusted medical recruitment platform.
             </p>
-            
+
             {/* Social Links */}
             <div className="flex gap-3 pt-2">
               <a href="#" className="w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center transition-colors">
@@ -72,7 +72,10 @@ const Footer = () => {
                 <Link to="/privacy-policy" className="hover:text-white transition-colors">Privacy Policy</Link>
               </li>
               <li>
-                <Link to="/terms" className="hover:text-white transition-colors">Terms of Service</Link>
+                <Link to="/termsandservices/forhospitals" className="hover:text-white transition-colors">Terms for Hospitals</Link>
+              </li>
+              <li>
+                <Link to="/termsandservices/fordoctors" className="hover:text-white transition-colors">Terms for Doctors</Link>
               </li>
               <li>
                 <Link to="/faq" className="hover:text-white transition-colors">FAQ</Link>
@@ -124,8 +127,11 @@ const Footer = () => {
               <Link to="/privacy-policy" className="hover:text-white transition-colors">
                 Privacy Policy
               </Link>
-              <Link to="/terms" className="hover:text-white transition-colors">
-                Terms of Service
+              <Link to="/termsandservices/forhospitals" className="hover:text-white transition-colors">
+                Terms (Hospitals)
+              </Link>
+              <Link to="/termsandservices/fordoctors" className="hover:text-white transition-colors">
+                Terms (Doctors)
               </Link>
               <Link to="/contact" className="hover:text-white transition-colors">
                 Contact

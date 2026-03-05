@@ -1,6 +1,7 @@
 import { Users, CheckCircle, Calendar as CalendarIcon, BarChart } from "lucide-react";
 import { Card } from "@/components/ui/card";
 
+
 const benefits = [
   {
     icon: Users,
