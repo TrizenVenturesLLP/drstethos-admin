@@ -32,7 +32,9 @@ const Index = () => {
         <Pricing />
       </div>
       <AppDownload />
-      <Support />
+      <div id="get-in-touch">
+        <Support />
+      </div>
       <Footer />
     </div>
   );

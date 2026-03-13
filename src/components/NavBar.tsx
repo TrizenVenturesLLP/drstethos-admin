@@ -52,6 +52,7 @@ const NavBar = () => {
           <Button 
             className="rounded-full bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 shadow-md hover:shadow-lg transition-all"
             size="sm"
+            onClick={() => scrollToSection('get-in-touch')}
           >
             <Phone className="w-4 h-4 mr-2" />
             <span className="hidden sm:inline">Contact Us</span>
