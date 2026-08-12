@@ -6,59 +6,57 @@ const NavBar = () => {
   const scrollToSection = (sectionId: string) => {
     const element = document.getElementById(sectionId);
     if (element) {
-      const offset = 80;
+      const offset = 56;
       const elementPosition = element.getBoundingClientRect().top;
       const offsetPosition = elementPosition + window.pageYOffset - offset;
-      
+
       window.scrollTo({
         top: offsetPosition,
-        behavior: "smooth"
+        behavior: "smooth",
       });
     }
   };
 
   return (
-    <nav className="sticky top-0 z-50 bg-white/95 backdrop-blur-sm border-b border-gray-100 shadow-sm">
-      <div className="container mx-auto px-4">
-        <div className="flex items-center justify-between h-16 md:h-20">
-          
-          {/* Logo */}
-          <Link to="/" className="flex items-center gap-2 group">
-            <img 
-              src="/logo.png" 
-              alt="DrStethos Logo" 
-              className="w-10 h-10 md:w-12 md:h-12 object-contain rounded-full group-hover:scale-105 transition-transform"
+    <nav className="sticky top-0 z-50 w-full bg-white/95 backdrop-blur-md border-b border-gray-100">
+      <div className="page-container">
+        <div className="flex items-center justify-between h-14 gap-4">
+          <Link to="/" className="flex items-center gap-2.5 group min-w-0">
+            <img
+              src="/logo.png"
+              alt="DrStethos Logo"
+              className="w-8 h-8 object-contain rounded-full group-hover:scale-105 transition-transform flex-shrink-0"
             />
-            <span className="text-xl md:text-2xl ml-2 font-bold text-gray-900"> DrStethos</span>
+            <span className="text-[15px] font-semibold text-gray-900 tracking-tight">
+              DrStethos
+            </span>
           </Link>
 
-          {/* Navigation Links */}
           <div className="hidden md:flex items-center gap-8">
-            <button onClick={() => scrollToSection('home')} className="text-gray-700 hover:text-primary transition-colors font-medium">
-              Home
-            </button>
-            <button onClick={() => scrollToSection('about')} className="text-gray-700 hover:text-primary transition-colors font-medium">
-              About Us
-            </button>
-            <button onClick={() => scrollToSection('how-it-works')} className="text-gray-700 hover:text-primary transition-colors font-medium">
-              How It Works
-            </button>
-            <button onClick={() => scrollToSection('pricing')} className="text-gray-700 hover:text-primary transition-colors font-medium">
-              Pricing
-            </button>
+            {[
+              { id: "home", label: "Home" },
+              { id: "about", label: "About" },
+              { id: "how-it-works", label: "How It Works" },
+              { id: "pricing", label: "Pricing" },
+            ].map((item) => (
+              <button
+                key={item.id}
+                onClick={() => scrollToSection(item.id)}
+                className="text-[13px] text-gray-600 hover:text-primary transition-colors font-medium"
+              >
+                {item.label}
+              </button>
+            ))}
           </div>
 
-          {/* Contact Button */}
-          <Button 
-            className="rounded-full bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 shadow-md hover:shadow-lg transition-all"
+          <Button
+            className="h-9 rounded-full bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 px-4 text-[12px] sm:text-[13px] font-medium shadow-none"
             size="sm"
-            onClick={() => scrollToSection('get-in-touch')}
+            onClick={() => scrollToSection("get-in-touch")}
           >
-            <Phone className="w-4 h-4 mr-2" />
-            <span className="hidden sm:inline">Contact Us</span>
-            <span className="sm:hidden">Contact</span>
+            <Phone className="w-3.5 h-3.5 mr-1.5" />
+            Contact
           </Button>
-
         </div>
       </div>
     </nav>

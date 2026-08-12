@@ -66,91 +66,79 @@ const Support = () => {
   };
 
   return (
-    <section className="py-20 bg-gradient-to-br from-gray-50 to-blue-50">
-      <div className="container mx-auto px-4">
-        
-        {/* Section Header */}
-        <div className="text-center max-w-3xl mx-auto mb-12">
-          <h2 className="text-4xl lg:text-5xl font-bold text-gray-900 mb-4">
+    <section className="section-y bg-gradient-to-br from-gray-50 to-blue-50/60 overflow-x-hidden">
+      <div className="page-container">
+        <div className="text-center max-w-2xl mx-auto mb-10 md:mb-12">
+          <h2 className="text-2xl md:text-3xl lg:text-[2.15rem] font-semibold text-gray-900 mb-3 tracking-tight">
             Get in Touch
           </h2>
-          <p className="text-lg text-gray-600">
+          <p className="text-sm md:text-[15px] text-gray-500 font-normal">
             Have questions? Send us a message and we'll respond as soon as possible.
           </p>
         </div>
 
-        {/* Two Column Layout */}
-        <div className="grid lg:grid-cols-2 gap-12 max-w-6xl mx-auto">
-          
-          {/* Left Side - Support Info */}
-          <div className="space-y-8">
+        <div className="grid lg:grid-cols-2 gap-8 lg:gap-12 max-w-5xl mx-auto">
+          <div className="space-y-6">
             <div>
-              <h3 className="text-3xl font-bold text-gray-900 mb-4">
+              <h3 className="text-lg font-semibold text-gray-900 mb-2 tracking-tight">
                 Support Information
               </h3>
-              <p className="text-gray-600 text-lg">
+              <p className="text-gray-500 text-sm font-normal">
                 Reach out to us and we'll get back to you shortly.
               </p>
             </div>
 
-            {/* Support Features */}
-            <div className="space-y-6">
-              
-              {/* Email */}
-              <div className="flex items-start gap-4">
-                <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center flex-shrink-0">
-                  <Mail className="h-6 w-6 text-primary" />
+            <div className="space-y-4">
+              <div className="flex items-start gap-3.5">
+                <div className="w-10 h-10 bg-primary/10 rounded-xl flex items-center justify-center flex-shrink-0">
+                  <Mail className="h-4 w-4 text-primary" />
                 </div>
-                <div>
-                  <h4 className="text-lg font-semibold text-gray-900 mb-1">Email Us</h4>
-                  <p className="text-gray-600">stethosabisha@gmail.com</p>
+                <div className="min-w-0">
+                  <h4 className="text-sm font-semibold text-gray-900 mb-0.5">Email Us</h4>
+                  <p className="text-sm text-gray-500 font-normal">stethosabisha@gmail.com</p>
                 </div>
               </div>
 
-              {/* Phone */}
-              <div className="flex items-start gap-4">
-                <div className="w-12 h-12 bg-green-500/10 rounded-lg flex items-center justify-center flex-shrink-0">
-                  <Phone className="h-6 w-6 text-green-600" />
+              <div className="flex items-start gap-3.5">
+                <div className="w-10 h-10 bg-green-500/10 rounded-xl flex items-center justify-center flex-shrink-0">
+                  <Phone className="h-4 w-4 text-green-600" />
                 </div>
-                <div>
-                  <h4 className="text-lg font-semibold text-gray-900 mb-1">Call Us</h4>
-                  <p className="text-gray-600">+91 70753 55969</p>
-                </div>
-              </div>
-
-              {/* Office Hours */}
-              <div className="flex items-start gap-4">
-                <div className="w-12 h-12 bg-purple-500/10 rounded-lg flex items-center justify-center flex-shrink-0">
-                  <Clock className="h-6 w-6 text-purple-600" />
-                </div>
-                <div>
-                  <h4 className="text-lg font-semibold text-gray-900 mb-1">Business Hours</h4>
-                  <p className="text-gray-600">Monday - Friday: 9AM - 6PM EST</p>
+                <div className="min-w-0">
+                  <h4 className="text-sm font-semibold text-gray-900 mb-0.5">Call Us</h4>
+                  <p className="text-sm text-gray-500 font-normal">+91 70753 55969</p>
                 </div>
               </div>
 
-              {/* Location */}
-              <div className="flex items-start gap-4">
-                <div className="w-12 h-12 bg-orange-500/10 rounded-lg flex items-center justify-center flex-shrink-0">
-                  <MapPin className="h-6 w-6 text-orange-600" />
+              <div className="flex items-start gap-3.5">
+                <div className="w-10 h-10 bg-purple-500/10 rounded-xl flex items-center justify-center flex-shrink-0">
+                  <Clock className="h-4 w-4 text-purple-600" />
                 </div>
-                <div>
-                  <h4 className="text-lg font-semibold text-gray-900 mb-1">Office Location</h4>
-                  <p className="text-gray-600">DRSTETHOS INNOVATIONS LLP, H NO 7-7-14, GARUVU VEEDI, WARD NO-12, ADJ, Bhimavaram, West Godavari, Andhra Pradesh, 534201</p>
+                <div className="min-w-0">
+                  <h4 className="text-sm font-semibold text-gray-900 mb-0.5">Business Hours</h4>
+                  <p className="text-sm text-gray-500 font-normal">Monday - Friday: 9AM - 6PM EST</p>
+                </div>
+              </div>
+
+              <div className="flex items-start gap-3.5">
+                <div className="w-10 h-10 bg-orange-500/10 rounded-xl flex items-center justify-center flex-shrink-0">
+                  <MapPin className="h-4 w-4 text-orange-600" />
+                </div>
+                <div className="min-w-0">
+                  <h4 className="text-sm font-semibold text-gray-900 mb-0.5">Office Location</h4>
+                  <p className="text-sm text-gray-500 leading-relaxed font-normal">
+                    DRSTETHOS INNOVATIONS LLP, H NO 7-7-14, GARUVU VEEDI, WARD NO-12, ADJ, Bhimavaram, West Godavari, Andhra Pradesh, 534201
+                  </p>
                 </div>
               </div>
             </div>
           </div>
 
-          {/* Right Side - Contact Form */}
-          <div className="bg-white rounded-2xl shadow-xl p-8 lg:p-10 border border-gray-200">
-            <h3 className="text-2xl font-bold text-gray-900 mb-6">Send a Message</h3>
-            
-            <form onSubmit={handleSubmit} className="space-y-6">
-              
-              {/* Name Field */}
-              <div className="space-y-2">
-                <Label htmlFor="name" className="text-base font-medium">
+          <div className="bg-white rounded-xl shadow-sm p-5 sm:p-6 lg:p-8 border border-gray-100 w-full min-w-0">
+            <h3 className="text-lg font-semibold text-gray-900 mb-5 tracking-tight">Send a Message</h3>
+
+            <form onSubmit={handleSubmit} className="space-y-4">
+              <div className="space-y-1.5">
+                <Label htmlFor="name" className="text-sm font-medium">
                   Your Name
                 </Label>
                 <Input
@@ -160,13 +148,12 @@ const Support = () => {
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   required
-                  className="h-12 text-base"
+                  className="h-10 text-sm"
                 />
               </div>
 
-              {/* Email Field */}
-              <div className="space-y-2">
-                <Label htmlFor="email" className="text-base font-medium">
+              <div className="space-y-1.5">
+                <Label htmlFor="email" className="text-sm font-medium">
                   Email Address
                 </Label>
                 <Input
@@ -176,13 +163,12 @@ const Support = () => {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   required
-                  className="h-12 text-base"
+                  className="h-10 text-sm"
                 />
               </div>
 
-              {/* Message Field */}
-              <div className="space-y-2">
-                <Label htmlFor="message" className="text-base font-medium">
+              <div className="space-y-1.5">
+                <Label htmlFor="message" className="text-sm font-medium">
                   Message
                 </Label>
                 <Textarea
@@ -191,26 +177,25 @@ const Support = () => {
                   value={message}
                   onChange={(e) => setMessage(e.target.value)}
                   required
-                  rows={6}
-                  className="resize-none text-base"
+                  rows={5}
+                  className="resize-none text-sm"
                 />
               </div>
 
-              {/* Submit Button */}
-              <Button 
-                type="submit" 
-                size="lg" 
-                className="w-full h-12 text-base font-semibold"
+              <Button
+                type="submit"
+                size="lg"
+                className="w-full h-10 text-sm font-medium"
                 disabled={isLoading}
               >
                 {isLoading ? (
                   <>
-                    <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                     Sending...
                   </>
                 ) : (
                   <>
-                    <Mail className="mr-2 h-5 w-5" />
+                    <Mail className="mr-2 h-4 w-4" />
                     Send Message
                   </>
                 )}

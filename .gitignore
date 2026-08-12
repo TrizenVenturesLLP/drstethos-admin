@@ -23,4 +23,10 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
-backend/
+
+# Cloud Functions — track source, ignore secrets & build artifacts
+functions/node_modules/
+functions/lib/
+functions/service-account-key.json
+functions/.runtimeconfig.json
+functions/*.local

@@ -341,38 +341,40 @@ const DoctorProfile = () => {
   const handleRejectClick = () => setShowRejectDialog(true);
 
   if (isLoading) {
-    return <div className="p-8">Loading…</div>;
+    return <div className="text-sm text-slate-500">Loading…</div>;
   }
 
   if (!doctor) {
     return (
-      <div className="p-8">
-        <Card>
-          <CardContent className="py-12 text-center">Doctor not found</CardContent>
-        </Card>
-      </div>
+      <Card>
+        <CardContent className="py-12 text-center text-slate-500">Doctor not found</CardContent>
+      </Card>
     );
   }
 
   return (
-    <div className="p-8 max-w-6xl mx-auto">
+    <div className="space-y-6">
       {/* Header */}
-      <div className="mb-6">
-        <Button variant="ghost" onClick={() => navigate("/admin/verify")}>
+      <div>
+        <Button
+          variant="ghost"
+          onClick={() => navigate("/admin/verify")}
+          className="h-9 px-2 -ml-2 mb-3 text-slate-600"
+        >
           <ArrowLeft className="h-4 w-4 mr-2" />
           Back to Verifications
         </Button>
 
-        <div className="flex justify-between items-start">
+        <div className="flex justify-between items-start gap-4">
           <div>
-            <h1 className="text-3xl font-bold">{doctor.name}</h1>
-            <p className="text-slate-500 mt-2">Doctor Profile Verification</p>
+            <h1 className="text-xl font-semibold text-slate-900 tracking-tight">{doctor.name}</h1>
+            <p className="text-sm text-slate-500 mt-1">Doctor Profile Verification</p>
           </div>
           <Badge
             className={
               doctor.isVerified
-                ? "bg-green-100 text-green-800"
-                : "bg-orange-100 text-orange-800"
+                ? "bg-green-50 text-green-700 border border-green-200"
+                : "bg-orange-50 text-orange-700 border border-orange-200"
             }
           >
             {doctor.isVerified ? "Verified" : "Pending Verification"}

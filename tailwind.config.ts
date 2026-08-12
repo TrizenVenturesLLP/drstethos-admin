@@ -7,14 +7,20 @@ export default {
   theme: {
     container: {
       center: true,
-      padding: "2rem",
+      padding: {
+        DEFAULT: "1.25rem",
+        sm: "2rem",
+        md: "2.5rem",
+        lg: "3rem",
+        xl: "4rem",
+      },
       screens: {
-        "2xl": "1400px",
+        "2xl": "1200px",
       },
     },
     extend: {
       fontFamily: {
-        sans: ['Inter', 'system-ui', 'sans-serif'],
+        sans: ['Poppins', "system-ui", "sans-serif"],
       },
       colors: {
         border: "hsl(var(--border))",

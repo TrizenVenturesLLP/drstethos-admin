@@ -116,86 +116,86 @@ const doctorPlans = [
 
 const Pricing = () => {
   return (
-    <section className="py-16 md:py-24 bg-gradient-to-b from-white to-gray-50">
-      <div className="container mx-auto px-4">
+    <section className="section-y bg-gradient-to-b from-white to-gray-50/80 overflow-x-hidden">
+      <div className="page-container">
         
         {/* Section Header */}
-        <div className="text-center mb-12 md:mb-16">
-          <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-gray-900 mb-4">
+        <div className="text-center mb-10 md:mb-12">
+          <h2 className="text-2xl md:text-3xl lg:text-[2.15rem] font-semibold text-gray-900 mb-3 tracking-tight">
             Choose Your Plan
           </h2>
-          <div className="w-24 h-1 bg-primary mx-auto mb-6"></div>
-          <p className="text-lg md:text-xl text-gray-600 max-w-2xl mx-auto">
+          <div className="w-10 h-0.5 bg-primary mx-auto mb-4"></div>
+          <p className="text-sm md:text-[15px] text-gray-500 max-w-xl mx-auto font-normal">
             Flexible pricing designed for hospitals and doctors
           </p>
         </div>
 
         {/* Tabs for Hospital/Doctor */}
-        <Tabs defaultValue="hospitals" className="w-full max-w-7xl mx-auto">
-          <TabsList className="grid w-full max-w-md mx-auto grid-cols-2 mb-12">
-            <TabsTrigger value="hospitals" className="text-base">For Hospitals</TabsTrigger>
-            <TabsTrigger value="doctors" className="text-base">For Doctors</TabsTrigger>
+        <Tabs defaultValue="hospitals" className="w-full max-w-6xl mx-auto">
+          <TabsList className="grid w-full max-w-sm mx-auto grid-cols-2 mb-10 h-10">
+            <TabsTrigger value="hospitals" className="text-sm font-medium">For Hospitals</TabsTrigger>
+            <TabsTrigger value="doctors" className="text-sm font-medium">For Doctors</TabsTrigger>
           </TabsList>
 
           {/* Hospital Plans */}
           <TabsContent value="hospitals">
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 mb-8">
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-5 lg:gap-6 mb-8 pt-3">
               {hospitalPlans.map((plan, index) => {
                 const Icon = plan.icon;
                 return (
                   <div
                     key={index}
-                    className={`relative bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 border-2 ${
-                      plan.popular ? 'border-primary scale-105' : 'border-gray-200'
+                    className={`relative bg-white rounded-xl shadow-sm hover:shadow-md transition-all duration-300 border ${
+                      plan.popular ? 'border-primary shadow-medical ring-1 ring-primary/15' : 'border-gray-200'
                     }`}
                   >
                     {plan.popular && (
-                      <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
-                        <span className="bg-gradient-to-r from-primary to-blue-600 text-white px-4 py-1 rounded-full text-sm font-semibold shadow-lg">
+                      <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
+                        <span className="bg-gradient-to-r from-primary to-blue-600 text-white px-3 py-0.5 rounded-full text-xs font-semibold shadow-sm">
                           Most Popular
                         </span>
                       </div>
                     )}
 
-                    <div className="p-8">
+                    <div className="p-5 md:p-6">
                       {/* Plan Header */}
-                      <div className="flex items-center gap-3 mb-6">
-                        <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${plan.color} flex items-center justify-center`}>
-                          <Icon className="w-6 h-6 text-white" />
+                      <div className="flex items-center gap-2.5 mb-4">
+                        <div className={`w-10 h-10 rounded-lg bg-gradient-to-br ${plan.color} flex items-center justify-center`}>
+                          <Icon className="w-5 h-5 text-white" />
                         </div>
                         <div>
-                          <h3 className="text-2xl font-bold text-gray-900">{plan.name}</h3>
+                          <h3 className="text-lg font-bold text-gray-900">{plan.name}</h3>
                         </div>
                       </div>
 
                       {/* Pricing */}
-                      <div className="mb-6">
-                        <div className="flex items-baseline gap-2 mb-2">
-                          <span className="text-4xl font-bold text-gray-900">₹{plan.monthlyPrice}</span>
-                          <span className="text-gray-600">/month</span>
+                      <div className="mb-4">
+                        <div className="flex items-baseline gap-1.5 mb-1">
+                          <span className="text-3xl font-bold text-gray-900">₹{plan.monthlyPrice}</span>
+                          <span className="text-sm text-gray-500">/month</span>
                         </div>
-                        <div className="text-sm text-gray-600">
+                        <div className="text-xs text-gray-500">
                           or ₹{plan.yearlyPrice}/year <span className="text-green-600 font-semibold">(Save more!)</span>
                         </div>
                       </div>
 
                       {/* Target */}
-                      <p className="text-sm text-gray-600 mb-6 pb-6 border-b border-gray-200">
+                      <p className="text-xs text-gray-500 mb-4 pb-4 border-b border-gray-100">
                         {plan.target}
                       </p>
 
                       {/* Features */}
-                      <div className="space-y-3 mb-8">
+                      <div className="space-y-2.5 mb-6">
                         {plan.features.map((feature, idx) => (
-                          <div key={idx} className="flex items-start gap-3">
+                          <div key={idx} className="flex items-start gap-2">
                             {feature.included ? (
-                              <Check className="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" />
+                              <Check className="w-4 h-4 text-green-600 flex-shrink-0 mt-0.5" />
                             ) : (
-                              <X className="w-5 h-5 text-gray-400 flex-shrink-0 mt-0.5" />
+                              <X className="w-4 h-4 text-gray-300 flex-shrink-0 mt-0.5" />
                             )}
-                            <div className="text-sm">
-                              <span className="font-medium text-gray-900">{feature.name}:</span>
-                              <span className={feature.included ? "text-gray-700 ml-1" : "text-gray-400 ml-1"}>
+                            <div className="text-xs">
+                              <span className="font-medium text-gray-800">{feature.name}:</span>
+                              <span className={feature.included ? "text-gray-600 ml-1" : "text-gray-400 ml-1"}>
                                 {feature.value}
                               </span>
                             </div>
@@ -205,7 +205,7 @@ const Pricing = () => {
 
                       {/* CTA Button */}
                       <Button
-                        className={`w-full py-6 rounded-xl font-semibold ${
+                        className={`w-full py-5 rounded-lg text-sm font-semibold ${
                           plan.popular
                             ? 'bg-gradient-to-r from-primary to-blue-600 hover:from-primary/90 hover:to-blue-700'
                             : ''
@@ -221,23 +221,23 @@ const Pricing = () => {
             </div>
 
             {/* Additional Info */}
-            <div className="bg-blue-50 rounded-2xl p-8 max-w-4xl mx-auto">
-              <h4 className="text-xl font-bold text-gray-900 mb-4">Additional Benefits</h4>
-              <ul className="grid md:grid-cols-2 gap-3 text-sm text-gray-700">
+            <div className="bg-blue-50/80 rounded-xl p-5 md:p-6 max-w-3xl mx-auto">
+              <h4 className="text-base font-bold text-gray-900 mb-3">Additional Benefits</h4>
+              <ul className="grid md:grid-cols-2 gap-2.5 text-xs text-gray-700">
                 <li className="flex items-start gap-2">
-                  <Check className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" />
+                  <Check className="w-4 h-4 text-primary flex-shrink-0 mt-0.5" />
                   <span>7-14 days free trial for new subscribers</span>
                 </li>
                 <li className="flex items-start gap-2">
-                  <Check className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" />
+                  <Check className="w-4 h-4 text-primary flex-shrink-0 mt-0.5" />
                   <span>10-15% discount for 2+ year subscriptions</span>
                 </li>
                 <li className="flex items-start gap-2">
-                  <Check className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" />
+                  <Check className="w-4 h-4 text-primary flex-shrink-0 mt-0.5" />
                   <span>Add-ons available for extra postings & views</span>
                 </li>
                 <li className="flex items-start gap-2">
-                  <Check className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" />
+                  <Check className="w-4 h-4 text-primary flex-shrink-0 mt-0.5" />
                   <span>Flexible monthly or annual payment options</span>
                 </li>
               </ul>
@@ -246,63 +246,63 @@ const Pricing = () => {
 
           {/* Doctor Plans */}
           <TabsContent value="doctors">
-            <div className="grid md:grid-cols-2 gap-8 max-w-5xl mx-auto mb-8">
+            <div className="grid md:grid-cols-2 gap-5 lg:gap-6 max-w-4xl mx-auto mb-8 pt-3">
               {doctorPlans.map((plan, index) => {
                 const Icon = plan.icon;
                 return (
                   <div
                     key={index}
-                    className={`relative bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 border-2 ${
-                      plan.popular ? 'border-primary scale-105' : 'border-gray-200'
+                    className={`relative bg-white rounded-xl shadow-sm hover:shadow-md transition-all duration-300 border ${
+                      plan.popular ? 'border-primary shadow-medical ring-1 ring-primary/15' : 'border-gray-200'
                     }`}
                   >
                     {plan.popular && (
-                      <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
-                        <span className="bg-gradient-to-r from-green-500 to-green-700 text-white px-4 py-1 rounded-full text-sm font-semibold shadow-lg">
+                      <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
+                        <span className="bg-gradient-to-r from-green-500 to-green-700 text-white px-3 py-0.5 rounded-full text-xs font-semibold shadow-sm">
                           Recommended
                         </span>
                       </div>
                     )}
 
-                    <div className="p-8">
+                    <div className="p-5 md:p-6">
                       {/* Plan Header */}
-                      <div className="flex items-center gap-3 mb-6">
-                        <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${plan.color} flex items-center justify-center`}>
-                          <Icon className="w-6 h-6 text-white" />
+                      <div className="flex items-center gap-2.5 mb-4">
+                        <div className={`w-10 h-10 rounded-lg bg-gradient-to-br ${plan.color} flex items-center justify-center`}>
+                          <Icon className="w-5 h-5 text-white" />
                         </div>
                         <div>
-                          <h3 className="text-2xl font-bold text-gray-900">{plan.name}</h3>
+                          <h3 className="text-lg font-bold text-gray-900">{plan.name}</h3>
                         </div>
                       </div>
 
                       {/* Pricing */}
-                      <div className="mb-6">
-                        <div className="flex items-baseline gap-2 mb-2">
-                          <span className="text-4xl font-bold text-gray-900">₹{plan.monthlyPrice}</span>
-                          <span className="text-gray-600">/month</span>
+                      <div className="mb-4">
+                        <div className="flex items-baseline gap-1.5 mb-1">
+                          <span className="text-3xl font-bold text-gray-900">₹{plan.monthlyPrice}</span>
+                          <span className="text-sm text-gray-500">/month</span>
                         </div>
-                        <div className="text-sm text-gray-600">
+                        <div className="text-xs text-gray-500">
                           or ₹{plan.yearlyPrice}/year <span className="text-green-600 font-semibold">(Best Value!)</span>
                         </div>
                       </div>
 
                       {/* Target */}
-                      <p className="text-sm text-gray-600 mb-6 pb-6 border-b border-gray-200">
+                      <p className="text-xs text-gray-500 mb-4 pb-4 border-b border-gray-100">
                         {plan.target}
                       </p>
 
                       {/* Features */}
-                      <div className="space-y-3 mb-8">
+                      <div className="space-y-2.5 mb-6">
                         {plan.features.map((feature, idx) => (
-                          <div key={idx} className="flex items-start gap-3">
+                          <div key={idx} className="flex items-start gap-2">
                             {feature.included ? (
-                              <Check className="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" />
+                              <Check className="w-4 h-4 text-green-600 flex-shrink-0 mt-0.5" />
                             ) : (
-                              <X className="w-5 h-5 text-gray-400 flex-shrink-0 mt-0.5" />
+                              <X className="w-4 h-4 text-gray-300 flex-shrink-0 mt-0.5" />
                             )}
-                            <div className="text-sm">
-                              <span className="font-medium text-gray-900">{feature.name}:</span>
-                              <span className={feature.included ? "text-gray-700 ml-1" : "text-gray-400 ml-1"}>
+                            <div className="text-xs">
+                              <span className="font-medium text-gray-800">{feature.name}:</span>
+                              <span className={feature.included ? "text-gray-600 ml-1" : "text-gray-400 ml-1"}>
                                 {feature.value}
                               </span>
                             </div>
@@ -312,7 +312,7 @@ const Pricing = () => {
 
                       {/* CTA Button */}
                       <Button
-                        className={`w-full py-6 rounded-xl font-semibold ${
+                        className={`w-full py-5 rounded-lg text-sm font-semibold ${
                           plan.popular
                             ? 'bg-gradient-to-r from-green-500 to-green-700 hover:from-green-600 hover:to-green-800'
                             : ''
@@ -328,23 +328,23 @@ const Pricing = () => {
             </div>
 
             {/* Additional Info */}
-            <div className="bg-green-50 rounded-2xl p-8 max-w-4xl mx-auto">
-              <h4 className="text-xl font-bold text-gray-900 mb-4">Why Upgrade to Premium?</h4>
-              <ul className="grid md:grid-cols-2 gap-3 text-sm text-gray-700">
+            <div className="bg-green-50/80 rounded-xl p-5 md:p-6 max-w-3xl mx-auto">
+              <h4 className="text-base font-bold text-gray-900 mb-3">Why Upgrade to Premium?</h4>
+              <ul className="grid md:grid-cols-2 gap-2.5 text-xs text-gray-700">
                 <li className="flex items-start gap-2">
-                  <Check className="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" />
+                  <Check className="w-4 h-4 text-green-600 flex-shrink-0 mt-0.5" />
                   <span>7-day free trial for premium features</span>
                 </li>
                 <li className="flex items-start gap-2">
-                  <Check className="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" />
+                  <Check className="w-4 h-4 text-green-600 flex-shrink-0 mt-0.5" />
                   <span>Unlimited job applications and searches</span>
                 </li>
                 <li className="flex items-start gap-2">
-                  <Check className="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" />
+                  <Check className="w-4 h-4 text-green-600 flex-shrink-0 mt-0.5" />
                   <span>Featured profile status for better visibility</span>
                 </li>
                 <li className="flex items-start gap-2">
-                  <Check className="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" />
+                  <Check className="w-4 h-4 text-green-600 flex-shrink-0 mt-0.5" />
                   <span>Direct messaging with hospitals</span>
                 </li>
               </ul>

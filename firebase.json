@@ -4,13 +4,19 @@
   },
   "functions": [
     {
-      "source": "backend",
+      "source": "functions",
       "codebase": "default",
       "ignore": [
         "node_modules",
         ".git",
         "firebase-debug.log*",
-        "**/node_modules/**"
+        "**/node_modules/**",
+        "service-account-key.json",
+        "scripts",
+        "emailTemplates.seed.json"
+      ],
+      "predeploy": [
+        "npm --prefix \"$RESOURCE_DIR\" run build"
       ]
     }
   ],

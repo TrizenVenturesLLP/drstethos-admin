@@ -8,20 +8,20 @@ echo ===================================
 echo.
 
 REM Check if service-account-key.json exists
-if not exist "backend\service-account-key.json" (
-    echo ⚠️  service-account-key.json not found in backend\
+if not exist "functions\service-account-key.json" (
+    echo ⚠️  service-account-key.json not found in functions\
     echo 📝 Please add your Firebase service account key:
     echo.
     echo 1. Go to: https://console.firebase.google.com
     echo 2. Select 'drstethos-app' project
     echo 3. Settings ^> Service Accounts ^> Firebase Admin SDK
     echo 4. Click 'Generate new private key'
-    echo 5. Save the file as: backend\service-account-key.json
+    echo 5. Save the file as: functions\service-account-key.json
     echo.
     pause
 )
 
-if not exist "backend\service-account-key.json" (
+if not exist "functions\service-account-key.json" (
     echo ❌ Setup cancelled - service account key is required
     exit /b 1
 )
@@ -29,10 +29,10 @@ if not exist "backend\service-account-key.json" (
 echo ✅ Service account key found
 echo.
 
-REM Check if in backend directory
-if not exist "backend\package.json" (
+REM Check if in functions directory
+if not exist "functions\package.json" (
     echo Installing dependencies...
-    cd backend
+    cd functions
     call npm install
     cd ..
 ) else (

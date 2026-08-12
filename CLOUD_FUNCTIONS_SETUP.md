@@ -5,7 +5,7 @@ This implements Firebase Cloud Functions to send FCM (Firebase Cloud Messaging) 
 
 ## What's been set up:
 
-### 1. **Backend Cloud Functions** (`/backend/src/index.ts`)
+### 1. **Firebase Cloud Functions** (`/functions/src/index.ts`)
 Two main cloud functions:
 
 #### `sendApprovalNotification()`
@@ -48,13 +48,13 @@ Two main cloud functions:
 2. Select your project (drstethos-app)
 3. Go to Settings → Service Accounts → Firebase Admin SDK
 4. Click "Generate new private key"
-5. Save the JSON file as `backend/service-account-key.json`
+5. Save the JSON file as `functions/service-account-key.json`
 
 ⚠️ **Important**: This file is already in `.gitignore` - never commit it to Git!
 
 ### Step 2: Install Dependencies
 ```bash
-cd backend
+cd functions
 npm install
 ```
 
@@ -153,7 +153,7 @@ Stores failed notification attempts:
 
 ### Test Locally with Emulator:
 ```bash
-# In backend directory
+# In functions directory
 npm run serve
 
 # In another terminal, test the function
@@ -185,8 +185,8 @@ curl http://localhost:5001/drstethos-app/asia-south1/sendApprovalNotification \
 
 ## 📋 Checklist Before Going Live
 
-- [ ] Service account key configured in `backend/service-account-key.json`
-- [ ] Dependencies installed: `npm install` in backend/
+- [ ] Service account key configured in `functions/service-account-key.json`
+- [ ] Dependencies installed: `npm install` in functions/
 - [ ] Cloud Functions deployed: `firebase deploy --only functions`
 - [ ] Region set correctly in code: `asia-south1`
 - [ ] Firestore security rules allow cloud functions to write logs

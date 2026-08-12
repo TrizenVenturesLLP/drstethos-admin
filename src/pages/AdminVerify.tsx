@@ -1,14 +1,11 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Search, Check, X, Clock, Eye } from "lucide-react";
+import { Search, Eye } from "lucide-react";
 import { toast } from "sonner";
-import { collection, query, getDocs, doc, updateDoc, orderBy } from "firebase/firestore";
-import { db, auth } from "@/lib/firebase";
+import { collection, query, getDocs, orderBy } from "firebase/firestore";
+import { db } from "@/lib/firebase";
 
 interface VerificationItem {
   id: string;
@@ -26,8 +23,8 @@ const AdminVerify = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [verifications, setVerifications] = useState<VerificationItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState("all");
-  const [subTab, setSubTab] = useState("all"); // For pending/verified subtabs
+  const [activeTab, setActiveTab] = useState<"all" | "pending" | "verified">("all");
+  const [roleFilter, setRoleFilter] = useState<"all" | "doctor" | "hospital">("all");
 
   useEffect(() => {
     fetchVerifications();
@@ -40,12 +37,11 @@ const AdminVerify = () => {
       const querySnapshot = await getDocs(q);
 
       const users: VerificationItem[] = [];
-      querySnapshot.forEach((doc) => {
-        const data = doc.data();
-        // Only include users who have completed onboarding (have profileId)
+      querySnapshot.forEach((docSnap) => {
+        const data = docSnap.data();
         if (data.profileId) {
           users.push({
-            id: doc.id,
+            id: docSnap.id,
             uid: data.uid,
             name: data.name || "N/A",
             email: data.email || "N/A",
@@ -66,280 +62,161 @@ const AdminVerify = () => {
     }
   };
 
-  const handleApprove = async (id: string, uid: string) => {
-    try {
-      const currentAdmin = auth.currentUser;
-      if (!currentAdmin) {
-        toast.error("Admin authentication required");
-        return;
-      }
-
-      const userRef = doc(db, "users", uid);
-      const verifiedAt = new Date();
-
-      // Update user document with admin information (only in users collection)
-      await updateDoc(userRef, {
-        isVerified: true,
-        verifiedAt: verifiedAt,
-        verifiedByAdminUid: currentAdmin.uid,
-        verifiedByAdminEmail: currentAdmin.email || "N/A",
-      });
-
-      // Get the user's profileId and role to update the respective collection
-      const user = verifications.find((item) => item.id === id);
-      if (user && user.profileId) {
-        const collectionName = user.profileId.startsWith("doctor") ? "doctors" : "hospitals";
-        const profileRef = doc(db, collectionName, user.profileId);
-
-        // Update the respective profile document (without admin info)
-        await updateDoc(profileRef, {
-          isVerified: true,
-          verifiedAt: verifiedAt,
-        });
-      }
-
-      setVerifications(
-        verifications.map((item) =>
-          item.id === id ? { ...item, isVerified: true } : item
-        )
-      );
-      toast.success("User verified successfully");
-    } catch (error) {
-      console.error("Error approving verification:", error);
-      toast.error("Failed to verify user");
-    }
-  };
-
-  const handleReject = async (id: string, uid: string) => {
-    try {
-      const userRef = doc(db, "users", uid);
-
-      // Update user document
-      await updateDoc(userRef, {
-        isVerified: false,
-      });
-
-      // Get the user's profileId to update the respective collection
-      const user = verifications.find((item) => item.id === id);
-      if (user && user.profileId) {
-        const collectionName = user.profileId.startsWith("doctor") ? "doctors" : "hospitals";
-        const profileRef = doc(db, collectionName, user.profileId);
-
-        // Update the respective profile document
-        await updateDoc(profileRef, {
-          isVerified: false,
-        });
-      }
-
-      setVerifications(
-        verifications.map((item) =>
-          item.id === id ? { ...item, isVerified: false } : item
-        )
-      );
-      toast.error("User verification rejected");
-    } catch (error) {
-      console.error("Error rejecting verification:", error);
-      toast.error("Failed to reject verification");
-    }
-  };
-
-  const filteredVerifications = verifications.filter((item) => {
+  const filtered = verifications.filter((item) => {
+    const q = searchTerm.toLowerCase();
     const matchesSearch =
-      item.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      item.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      item.role.toLowerCase().includes(searchTerm.toLowerCase());
+      item.name.toLowerCase().includes(q) ||
+      item.email.toLowerCase().includes(q) ||
+      item.role.toLowerCase().includes(q);
 
-    let matchesTab = false;
+    const matchesTab =
+      activeTab === "all" ||
+      (activeTab === "pending" && !item.isVerified) ||
+      (activeTab === "verified" && item.isVerified);
 
-    if (activeTab === "all") {
-      matchesTab = true;
-    } else if (activeTab === "pending") {
-      const isPending = !item.isVerified;
-      if (subTab === "all") {
-        matchesTab = isPending;
-      } else if (subTab === "doctors") {
-        matchesTab = isPending && item.role?.toLowerCase() === "doctor";
-      } else if (subTab === "hospitals") {
-        matchesTab = isPending && item.role?.toLowerCase() === "hospital";
-      }
-    } else if (activeTab === "verified") {
-      const isVerified = item.isVerified;
-      if (subTab === "all") {
-        matchesTab = isVerified;
-      } else if (subTab === "doctors") {
-        matchesTab = isVerified && item.role?.toLowerCase() === "doctor";
-      } else if (subTab === "hospitals") {
-        matchesTab = isVerified && item.role?.toLowerCase() === "hospital";
-      }
-    }
+    const matchesRole =
+      roleFilter === "all" || item.role?.toLowerCase() === roleFilter;
 
-    return matchesSearch && matchesTab;
+    return matchesSearch && matchesTab && matchesRole;
   });
 
-  const getStatusBadge = (isVerified: boolean) => {
-    if (isVerified) {
-      return (
-        <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">
-          <Check className="h-3 w-3 mr-1" />
-          Verified
-        </Badge>
-      );
-    }
-    return (
-      <Badge variant="outline" className="bg-orange-50 text-orange-700 border-orange-200">
-        <Clock className="h-3 w-3 mr-1" />
-        Pending
-      </Badge>
-    );
-  };
+  const pendingCount = verifications.filter((v) => !v.isVerified).length;
+  const verifiedCount = verifications.filter((v) => v.isVerified).length;
 
-  const formatDate = (date: Date): string => {
-    return date.toLocaleString("en-US", {
-      year: "numeric",
-      month: "short",
-      day: "numeric",
-      hour: "2-digit",
-      minute: "2-digit",
-    });
-  };
-
-  const getRoleBadgeVariant = (role: string) => {
-    return role.toLowerCase() === "doctor" ? "default" : "secondary";
-  };
+  const formatDate = (date: Date) =>
+    date.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
 
   if (isLoading) {
     return (
-      <div className="p-8">
-        <div className="animate-pulse">
-          <div className="h-8 bg-slate-200 rounded w-1/4 mb-2"></div>
-          <div className="h-4 bg-slate-200 rounded w-1/3 mb-8"></div>
-          <div className="h-16 bg-slate-200 rounded mb-6"></div>
-          <div className="space-y-4">
-            {[1, 2, 3].map((i) => (
-              <div key={i} className="h-32 bg-slate-200 rounded"></div>
-            ))}
-          </div>
-        </div>
+      <div className="space-y-4 animate-pulse">
+        <div className="h-10 rounded-lg bg-slate-200/70" />
+        <div className="h-64 rounded-lg bg-slate-200/70" />
       </div>
     );
   }
 
   return (
-    <div className="p-8">
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold text-slate-900">Verification Management</h1>
-        <p className="text-slate-500 mt-2">Review and approve verification requests</p>
+    <div className="space-y-5">
+      <div className="flex flex-wrap gap-4 text-sm">
+        <div className="text-slate-500">
+          Total <span className="font-semibold text-slate-900">{verifications.length}</span>
+        </div>
+        <div className="text-slate-500">
+          Pending <span className="font-semibold text-orange-600">{pendingCount}</span>
+        </div>
+        <div className="text-slate-500">
+          Verified <span className="font-semibold text-green-600">{verifiedCount}</span>
+        </div>
       </div>
 
-      {/* Search Bar */}
-      <Card className="mb-6">
-        <CardContent className="pt-6">
-          <div className="relative">
-            <Search className="absolute left-3 top-3 h-5 w-5 text-slate-400" />
+      <div className="rounded-lg border border-slate-200 bg-white overflow-hidden">
+        <div className="flex flex-col gap-3 border-b border-slate-100 p-3 sm:flex-row sm:items-center sm:justify-between">
+          <div className="relative flex-1 max-w-md">
+            <Search className="absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-slate-400" />
             <Input
-              placeholder="Search by name or email..."
+              placeholder="Search name or email..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-10"
+              className="h-9 pl-9 text-sm border-slate-200 bg-slate-50/50"
             />
           </div>
-        </CardContent>
-      </Card>
 
-      {/* Tabs for filtering */}
-      <Tabs value={activeTab} onValueChange={(value) => {
-        setActiveTab(value);
-        setSubTab("all"); // Reset subtab when main tab changes
-      }} className="mb-6">
-        <TabsList className="grid w-full max-w-md grid-cols-3">
-          <TabsTrigger value="all">All</TabsTrigger>
-          <TabsTrigger value="pending">Pending</TabsTrigger>
-          <TabsTrigger value="verified">Verified</TabsTrigger>
-        </TabsList>
-      </Tabs>
-
-      {/* Sub-tabs for Pending and Verified */}
-      {(activeTab === "pending" || activeTab === "verified") && (
-        <div className="mb-6 flex gap-2">
-          <Button
-            variant={subTab === "all" ? "default" : "outline"}
-            size="sm"
-            onClick={() => setSubTab("all")}
-          >
-            All
-          </Button>
-          <Button
-            variant={subTab === "doctors" ? "default" : "outline"}
-            size="sm"
-            onClick={() => setSubTab("doctors")}
-          >
-            Doctors
-          </Button>
-          <Button
-            variant={subTab === "hospitals" ? "default" : "outline"}
-            size="sm"
-            onClick={() => setSubTab("hospitals")}
-          >
-            Hospitals
-          </Button>
+          <div className="flex flex-wrap gap-1.5">
+            {(["all", "pending", "verified"] as const).map((tab) => (
+              <button
+                key={tab}
+                type="button"
+                onClick={() => setActiveTab(tab)}
+                className={`h-8 rounded-md px-3 text-xs capitalize transition-colors ${
+                  activeTab === tab
+                    ? "bg-blue-600 text-white"
+                    : "bg-slate-50 text-slate-600 hover:bg-slate-100"
+                }`}
+              >
+                {tab}
+              </button>
+            ))}
+            <span className="mx-1 hidden h-8 w-px bg-slate-200 sm:block" />
+            {(["all", "doctor", "hospital"] as const).map((role) => (
+              <button
+                key={role}
+                type="button"
+                onClick={() => setRoleFilter(role)}
+                className={`h-8 rounded-md px-3 text-xs capitalize transition-colors ${
+                  roleFilter === role
+                    ? "bg-slate-900 text-white"
+                    : "bg-slate-50 text-slate-600 hover:bg-slate-100"
+                }`}
+              >
+                {role === "all" ? "All roles" : role + "s"}
+              </button>
+            ))}
+          </div>
         </div>
-      )}
 
-      {/* Verifications List */}
-      <div className="space-y-4">
-        {filteredVerifications.map((item) => (
-          <Card key={item.id} className="hover:shadow-md transition-shadow">
-            <CardHeader>
-              <div className="flex items-start justify-between">
-                <div>
-                  <CardTitle className="text-xl">{item.name}</CardTitle>
-                  <CardDescription className="mt-1">{item.email}</CardDescription>
-                  {item.profileId && (
-                    <CardDescription className="mt-1 text-xs">
-                      Profile ID: {item.profileId}
-                    </CardDescription>
-                  )}
-                </div>
-                <div className="flex items-center gap-3">
-                  <Badge variant={getRoleBadgeVariant(item.role)}>
-                    {item.role.charAt(0).toUpperCase() + item.role.slice(1)}
-                  </Badge>
-                  {getStatusBadge(item.isVerified)}
-                </div>
-              </div>
-            </CardHeader>
-            <CardContent>
-              <div className="flex items-center justify-between">
-                <div className="text-sm text-slate-500">
-                  Registered: {formatDate(item.createdAt)}
-                </div>
-                <div className="flex gap-2">
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    onClick={() => {
-                      const route = item.role?.toLowerCase() === "hospital"
-                        ? `/admin/hospital/${item.profileId}`
-                        : `/admin/doctor/${item.profileId}`;
-                      navigate(route);
-                    }}
-                  >
-                    <Eye className="h-4 w-4 mr-1" />
-                    View Profile
-                  </Button>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        ))}
+        <div className="overflow-x-auto">
+          <table className="w-full min-w-[640px] text-left">
+            <thead>
+              <tr className="border-b border-slate-100 bg-slate-50/80 text-[11px] uppercase tracking-wide text-slate-500">
+                <th className="px-4 py-2.5 font-medium">User</th>
+                <th className="px-4 py-2.5 font-medium">Role</th>
+                <th className="px-4 py-2.5 font-medium">Status</th>
+                <th className="px-4 py-2.5 font-medium">Registered</th>
+                <th className="px-4 py-2.5 font-medium text-right">Action</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-slate-100">
+              {filtered.map((item) => (
+                <tr key={item.id} className="hover:bg-slate-50/70">
+                  <td className="px-4 py-3">
+                    <div className="min-w-0">
+                      <p className="text-[13px] font-medium text-slate-900 truncate">{item.name}</p>
+                      <p className="text-[12px] text-slate-500 truncate">{item.email}</p>
+                    </div>
+                  </td>
+                  <td className="px-4 py-3">
+                    <span className="text-[12px] capitalize text-slate-600">{item.role}</span>
+                  </td>
+                  <td className="px-4 py-3">
+                    <span
+                      className={`inline-flex items-center rounded-full px-2 py-0.5 text-[11px] font-medium ${
+                        item.isVerified
+                          ? "bg-green-50 text-green-700"
+                          : "bg-orange-50 text-orange-700"
+                      }`}
+                    >
+                      {item.isVerified ? "Verified" : "Pending"}
+                    </span>
+                  </td>
+                  <td className="px-4 py-3 text-[12px] text-slate-500">
+                    {formatDate(item.createdAt)}
+                  </td>
+                  <td className="px-4 py-3 text-right">
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      className="h-8 text-xs text-blue-600 hover:text-blue-700 hover:bg-blue-50"
+                      onClick={() => {
+                        const route =
+                          item.role?.toLowerCase() === "hospital"
+                            ? `/admin/hospital/${item.profileId}`
+                            : `/admin/doctor/${item.profileId}`;
+                        navigate(route);
+                      }}
+                    >
+                      <Eye className="mr-1 h-3.5 w-3.5" />
+                      View
+                    </Button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
 
-        {filteredVerifications.length === 0 && (
-          <Card>
-            <CardContent className="py-12 text-center">
-              <p className="text-slate-500">No verification requests found</p>
-            </CardContent>
-          </Card>
-        )}
+          {filtered.length === 0 && (
+            <p className="py-12 text-center text-sm text-slate-400">No results found</p>
+          )}
+        </div>
       </div>
     </div>
   );

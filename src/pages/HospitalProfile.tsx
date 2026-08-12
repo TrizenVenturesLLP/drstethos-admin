@@ -315,53 +315,49 @@ const HospitalProfile = () => {
 
   if (isLoading) {
     return (
-      <div className="p-8">
-        <div className="animate-pulse space-y-4">
-          <div className="h-8 bg-slate-200 rounded w-1/4"></div>
-          <div className="h-64 bg-slate-200 rounded"></div>
-          <div className="h-64 bg-slate-200 rounded"></div>
-        </div>
+      <div className="animate-pulse space-y-4">
+        <div className="h-8 bg-slate-200 rounded w-1/4"></div>
+        <div className="h-64 bg-slate-200 rounded"></div>
+        <div className="h-64 bg-slate-200 rounded"></div>
       </div>
     );
   }
 
   if (!hospital) {
     return (
-      <div className="p-8">
-        <Card>
-          <CardContent className="py-12 text-center">
-            <p className="text-slate-500">Hospital profile not found</p>
-          </CardContent>
-        </Card>
-      </div>
+      <Card>
+        <CardContent className="py-12 text-center">
+          <p className="text-slate-500">Hospital profile not found</p>
+        </CardContent>
+      </Card>
     );
   }
 
   return (
-    <div className="p-8 max-w-6xl mx-auto">
+    <div className="space-y-6">
       {/* Header */}
-      <div className="mb-6">
+      <div>
         <Button
           variant="ghost"
           onClick={() => navigate("/admin/verify")}
-          className="mb-4"
+          className="h-9 px-2 -ml-2 mb-3 text-slate-600"
         >
           <ArrowLeft className="h-4 w-4 mr-2" />
           Back to Verifications
         </Button>
-        <div className="flex items-start justify-between">
+        <div className="flex items-start justify-between gap-4">
           <div>
-            <h1 className="text-3xl font-bold text-slate-900">
+            <h1 className="text-xl font-semibold text-slate-900 tracking-tight">
               {hospital.name}
             </h1>
-            <p className="text-slate-500 mt-2">Hospital Profile Verification</p>
+            <p className="text-sm text-slate-500 mt-1">Hospital Profile Verification</p>
           </div>
           <Badge
             variant={hospital.isVerified ? "default" : "secondary"}
             className={
               hospital.isVerified
-                ? "bg-green-100 text-green-800"
-                : "bg-orange-100 text-orange-800"
+                ? "bg-green-50 text-green-700 border border-green-200"
+                : "bg-orange-50 text-orange-700 border border-orange-200"
             }
           >
             {hospital.isVerified ? "Verified" : "Pending Verification"}

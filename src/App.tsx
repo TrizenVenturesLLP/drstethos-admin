@@ -15,6 +15,8 @@ import AdminLogin from "./pages/AdminLogin";
 import AdminLayout from "./pages/AdminLayout";
 import AdminHome from "./pages/AdminHome";
 import AdminVerify from "./pages/AdminVerify";
+import AdminUsers from "./pages/AdminUsers";
+import AdminIncompleteDocuments from "./pages/AdminIncompleteDocuments";
 import HospitalProfile from "./pages/HospitalProfile";
 import DoctorProfile from "./pages/DoctorProfile";
 
@@ -40,6 +42,8 @@ const App = () => (
           <Route path="/admin" element={<AdminLayout />}>
             <Route path="home" element={<AdminHome />} />
             <Route path="verify" element={<AdminVerify />} />
+            <Route path="incomplete-documents" element={<AdminIncompleteDocuments />} />
+            <Route path="users" element={<AdminUsers />} />
             <Route path="hospital/:profileId" element={<HospitalProfile />} />
             <Route path="doctor/:profileId" element={<DoctorProfile />} />
           </Route>
