@@ -2,8 +2,6 @@ import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Textarea } from "@/components/ui/textarea";
-import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
   Dialog,
@@ -34,14 +32,14 @@ import {
 } from "firebase/firestore";
 import { auth, db } from "@/lib/firebase";
 import { sendEmail } from "@/helpers/cloudEmailHelper";
-
-type MissingDocKey =
-  | "certificates"
-  | "resume"
-  | "mcaNumber"
-  | "profilePhoto"
-  | "experience"
-  | "education";
+import { DocumentRequestEmailPreview } from "@/components/email/DocumentRequestEmailPreview";
+import {
+  buildMissingDocumentsListHtml,
+  buildMissingDocumentsText,
+  DOCUMENT_REQUEST_SUBJECT,
+  MISSING_DOC_LABELS,
+  type MissingDocKey,
+} from "@/lib/documentRequestEmail";
 
 interface IncompleteDoctor {
   id: string;
@@ -57,15 +55,6 @@ interface IncompleteDoctor {
   documentsRequestCount: number;
   fcmToken?: string;
 }
-
-const MISSING_LABELS: Record<MissingDocKey, string> = {
-  certificates: "Medical certificates",
-  resume: "Resume",
-  mcaNumber: "MCA / license number",
-  profilePhoto: "Profile photo",
-  experience: "Experience details",
-  education: "Education details",
-};
 
 const hasText = (value: unknown) =>
   typeof value === "string" && value.trim().length > 0;
@@ -101,22 +90,6 @@ const hasEducationField = (data: Record<string, any>) =>
   hasNonEmptyArray(data.educations) ||
   hasNonEmptyArray(data.educationDetails);
 
-const buildDefaultMessage = (name: string, missing: MissingDocKey[]) => {
-  const list = missing.map((key) => `• ${MISSING_LABELS[key]}`).join("\n");
-  return `Hi ${name},
-
-We reviewed your DrStethos profile and found that some required documents / profile details are missing or incomplete:
-
-${list}
-
-Please open the DrStethos app and add the missing information (including resume, experience, and education details where applicable) so we can continue verifying your profile.
-
-If you have already added them, kindly re-check that everything is saved and submitted successfully.
-
-Thank you,
-DrStethos Admin Team`;
-};
-
 const AdminIncompleteDocuments = () => {
   const navigate = useNavigate();
   const [doctors, setDoctors] = useState<IncompleteDoctor[]>([]);
@@ -127,7 +100,6 @@ const AdminIncompleteDocuments = () => {
 
   const [contactTarget, setContactTarget] = useState<IncompleteDoctor | null>(null);
   const [bulkMode, setBulkMode] = useState(false);
-  const [message, setMessage] = useState("");
   const [isSending, setIsSending] = useState(false);
 
   useEffect(() => {
@@ -247,7 +219,7 @@ const AdminIncompleteDocuments = () => {
         doctor.name.toLowerCase().includes(q) ||
         doctor.email.toLowerCase().includes(q) ||
         (doctor.specialization || "").toLowerCase().includes(q) ||
-        doctor.missing.some((m) => MISSING_LABELS[m].toLowerCase().includes(q));
+        doctor.missing.some((m) => MISSING_DOC_LABELS[m].toLowerCase().includes(q));
 
       const matchesStatus =
         statusFilter === "all" ||
@@ -287,7 +259,6 @@ const AdminIncompleteDocuments = () => {
   const openContact = (doctor: IncompleteDoctor) => {
     setBulkMode(false);
     setContactTarget(doctor);
-    setMessage(buildDefaultMessage(doctor.name, doctor.missing));
   };
 
   const openBulkContact = () => {
@@ -298,23 +269,15 @@ const AdminIncompleteDocuments = () => {
     }
     setBulkMode(true);
     setContactTarget(null);
-    setMessage(
-      buildDefaultMessage(
-        "Doctor",
-        Array.from(new Set(targets.flatMap((t) => t.missing))) as MissingDocKey[]
-      )
-    );
   };
 
-  const sendRequestToDoctor = async (
-    doctor: IncompleteDoctor,
-    customMessage: string
-  ) => {
+  const sendRequestToDoctor = async (doctor: IncompleteDoctor) => {
     if (!doctor.email || doctor.email === "N/A") {
       throw new Error(`No email on file for ${doctor.name}`);
     }
 
-    const messageHtml = customMessage.replace(/\n/g, "<br/>");
+    const missingDocuments = buildMissingDocumentsText(doctor.missing);
+    const missingDocumentsList = buildMissingDocumentsListHtml(doctor.missing);
 
     // Secure send via Cloud Function (Gmail SMTP + Firestore template)
     await sendEmail({
@@ -323,11 +286,8 @@ const AdminIncompleteDocuments = () => {
       variables: {
         doctorName: doctor.name,
         email: doctor.email,
-        message: customMessage,
-        messageHtml,
-        missingDocuments: doctor.missing
-          .map((key) => MISSING_LABELS[key])
-          .join(", "),
+        missingDocuments,
+        missingDocumentsList,
       },
     });
 
@@ -335,9 +295,9 @@ const AdminIncompleteDocuments = () => {
     await addDoc(collection(db, "mail"), {
       to: doctor.email,
       message: {
-        subject: "Action required: Upload missing documents on DrStethos",
-        text: customMessage,
-        html: `<div style="font-family:Arial,sans-serif;line-height:1.6;color:#111"><p>${messageHtml}</p></div>`,
+        subject: DOCUMENT_REQUEST_SUBJECT,
+        text: `Hi ${doctor.name},\n\nMissing items:\n${missingDocuments}`,
+        html: buildMissingDocumentsListHtml(doctor.missing),
       },
       type: "DOCUMENT_REQUEST",
       delivery: "cloud_function_smtp",
@@ -365,7 +325,6 @@ const AdminIncompleteDocuments = () => {
     await updateDoc(doc(db, "doctors", doctor.id), {
       documentsRequestSentAt: new Date(),
       documentsRequestCount: (doctor.documentsRequestCount || 0) + 1,
-      lastDocumentsRequestMessage: customMessage,
       lastDocumentsRequestMissing: doctor.missing,
       updatedAt: new Date(),
     });
@@ -383,11 +342,6 @@ const AdminIncompleteDocuments = () => {
   };
 
   const handleSend = async () => {
-    if (!message.trim()) {
-      toast.error("Message cannot be empty");
-      return;
-    }
-
     const targets = bulkMode
       ? doctors.filter((d) => selectedIds.has(d.id))
       : contactTarget
@@ -405,11 +359,7 @@ const AdminIncompleteDocuments = () => {
       let failCount = 0;
       for (const doctor of targets) {
         try {
-          const personalized = bulkMode
-            ? message.replace(/Hi Doctor/gi, `Hi ${doctor.name}`)
-            : message;
-
-          await sendRequestToDoctor(doctor, personalized);
+          await sendRequestToDoctor(doctor);
           successCount += 1;
         } catch (err) {
           console.error(err);
@@ -447,7 +397,6 @@ const AdminIncompleteDocuments = () => {
         setContactTarget(null);
         setBulkMode(false);
         setSelectedIds(new Set());
-        setMessage("");
       }
     } catch (error) {
       console.error("Failed to send document request:", error);
@@ -456,6 +405,10 @@ const AdminIncompleteDocuments = () => {
       setIsSending(false);
     }
   };
+
+  const previewDoctor = bulkMode
+    ? doctors.find((d) => selectedIds.has(d.id))
+    : contactTarget;
 
   if (isLoading) {
     return (
@@ -576,7 +529,7 @@ const AdminIncompleteDocuments = () => {
                           className="inline-flex items-center gap-1 rounded-full bg-orange-50 text-orange-700 px-2 py-0.5 text-[11px] font-medium"
                         >
                           <FileWarning className="h-3 w-3" />
-                          {MISSING_LABELS[key]}
+                          {MISSING_DOC_LABELS[key]}
                         </span>
                       ))}
                     </div>
@@ -666,12 +619,11 @@ const AdminIncompleteDocuments = () => {
           if (!open && !isSending) {
             setBulkMode(false);
             setContactTarget(null);
-            setMessage("");
           }
         }}
       >
-        <DialogContent className="sm:max-w-lg">
-          <DialogHeader>
+        <DialogContent className="flex max-h-[92vh] flex-col gap-0 overflow-hidden p-0 sm:max-w-2xl">
+          <DialogHeader className="shrink-0 border-b border-slate-100 px-6 py-4">
             <DialogTitle className="text-base font-semibold">
               {bulkMode
                 ? `Request document upload (${selectedIds.size})`
@@ -679,46 +631,37 @@ const AdminIncompleteDocuments = () => {
             </DialogTitle>
             <DialogDescription className="text-sm">
               {bulkMode
-                ? "An email and in-app reminder will be sent to each selected doctor."
-                : `Send a reminder to ${contactTarget?.name} asking them to upload missing documents.`}
+                ? "Review the email below. Each doctor receives their own name and missing document list."
+                : `This is the exact email that will be sent to ${contactTarget?.name}.`}
             </DialogDescription>
           </DialogHeader>
 
-          {!bulkMode && contactTarget && (
-            <div className="rounded-lg border border-slate-200 bg-slate-50 px-3 py-2.5">
-              <p className="text-xs font-medium text-slate-500 mb-1.5">Missing</p>
-              <div className="flex flex-wrap gap-1.5">
-                {contactTarget.missing.map((key) => (
-                  <span
-                    key={key}
-                    className="rounded-full bg-orange-50 text-orange-700 px-2 py-0.5 text-[11px] font-medium"
-                  >
-                    {MISSING_LABELS[key]}
-                  </span>
-                ))}
-              </div>
+          {previewDoctor && (
+            <div className="min-h-0 flex-1 overflow-y-auto px-6 py-4">
+              <DocumentRequestEmailPreview
+                doctorName={previewDoctor.name}
+                recipientEmail={previewDoctor.email}
+                missing={previewDoctor.missing}
+                bulkNote={
+                  bulkMode && selectedIds.size > 1
+                    ? `Showing preview for ${previewDoctor.name}. The other ${
+                        selectedIds.size - 1
+                      } selected doctor${
+                        selectedIds.size - 1 === 1 ? "" : "s"
+                      } will receive the same layout with their own details.`
+                    : undefined
+                }
+              />
             </div>
           )}
 
-          <div className="space-y-1.5">
-            <Label htmlFor="doc-message" className="text-sm">Message</Label>
-            <Textarea
-              id="doc-message"
-              rows={10}
-              value={message}
-              onChange={(e) => setMessage(e.target.value)}
-              className="text-sm resize-none"
-            />
-          </div>
-
-          <DialogFooter className="gap-2 sm:gap-0">
+          <DialogFooter className="shrink-0 gap-2 border-t border-slate-100 px-6 py-4 sm:gap-0">
             <Button
               variant="outline"
               disabled={isSending}
               onClick={() => {
                 setBulkMode(false);
                 setContactTarget(null);
-                setMessage("");
               }}
             >
               Cancel

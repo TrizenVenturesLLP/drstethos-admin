@@ -2,91 +2,84 @@
  * Seed default email templates into Firestore.
  *
  * Usage (from functions/):
- *   set GOOGLE_APPLICATION_CREDENTIALS=./service-account-key.json
  *   npm run seed:templates
  *
- * Or paste these documents manually in Firebase Console → Firestore → emailTemplates
+ * Requires one of:
+ *   1. functions/service-account-key.json (recommended)
+ *   2. gcloud auth application-default login (with gcloud installed)
+ *
+ * Or paste documents manually in Firebase Console → Firestore → emailTemplates
+ * using functions/emailTemplates.seed.json
  */
 
+const { documentRequestTemplate } = require("../email/documentRequestTemplate");
+
 const templates = {
-  doctorApproval: {
-    enabled: true,
-    description: "Sent when a doctor profile is approved",
-    subject: "Your DrStethos doctor profile has been approved",
-    text:
-      "Hi {{profileName}},\n\n" +
-      "Your {{profileType}} profile on DrStethos has been approved.\n" +
-      "You can access your dashboard here: {{dashboardLink}}\n\n" +
-      "Regards,\nDrStethos Team",
-    html:
-      '<div style="font-family:Arial,sans-serif;line-height:1.6;color:#111">' +
-      "<p>Hi {{profileName}},</p>" +
-      "<p>Your <strong>{{profileType}}</strong> profile on DrStethos has been approved.</p>" +
-      '<p><a href="{{dashboardLink}}">Open your dashboard</a></p>' +
-      "<p>Regards,<br/>DrStethos Team</p></div>",
-  },
-  hospitalApproval: {
-    enabled: true,
-    description: "Sent when a hospital profile is approved",
-    subject: "Your DrStethos hospital profile has been approved",
-    text:
-      "Hi {{profileName}},\n\n" +
-      "Your {{profileType}} profile on DrStethos has been approved.\n" +
-      "You can access your dashboard here: {{dashboardLink}}\n\n" +
-      "Regards,\nDrStethos Team",
-    html:
-      '<div style="font-family:Arial,sans-serif;line-height:1.6;color:#111">' +
-      "<p>Hi {{profileName}},</p>" +
-      "<p>Your <strong>{{profileType}}</strong> profile on DrStethos has been approved.</p>" +
-      '<p><a href="{{dashboardLink}}">Open your dashboard</a></p>' +
-      "<p>Regards,<br/>DrStethos Team</p></div>",
-  },
-  doctorRejection: {
-    enabled: true,
-    description: "Sent when a doctor profile is rejected",
-    subject: "Update on your DrStethos doctor profile verification",
-    text:
-      "Hi {{profileName}},\n\n" +
-      "Your {{profileType}} profile verification on DrStethos was not approved.\n" +
-      "Reason: {{rejectionReason}}\n\n" +
-      "Please update your profile and try again.\n\n" +
-      "Regards,\nDrStethos Team",
-    html:
-      '<div style="font-family:Arial,sans-serif;line-height:1.6;color:#111">' +
-      "<p>Hi {{profileName}},</p>" +
-      "<p>Your <strong>{{profileType}}</strong> profile verification on DrStethos was not approved.</p>" +
-      "<p><strong>Reason:</strong> {{rejectionReason}}</p>" +
-      "<p>Please update your profile and try again.</p>" +
-      "<p>Regards,<br/>DrStethos Team</p></div>",
-  },
-  hospitalRejection: {
-    enabled: true,
-    description: "Sent when a hospital profile is rejected",
-    subject: "Update on your DrStethos hospital profile verification",
-    text:
-      "Hi {{profileName}},\n\n" +
-      "Your {{profileType}} profile verification on DrStethos was not approved.\n" +
-      "Reason: {{rejectionReason}}\n\n" +
-      "Please update your profile and try again.\n\n" +
-      "Regards,\nDrStethos Team",
-    html:
-      '<div style="font-family:Arial,sans-serif;line-height:1.6;color:#111">' +
-      "<p>Hi {{profileName}},</p>" +
-      "<p>Your <strong>{{profileType}}</strong> profile verification on DrStethos was not approved.</p>" +
-      "<p><strong>Reason:</strong> {{rejectionReason}}</p>" +
-      "<p>Please update your profile and try again.</p>" +
-      "<p>Regards,<br/>DrStethos Team</p></div>",
-  },
-  documentRequest: {
-    enabled: true,
-    description: "Reminder to upload missing documents",
-    subject: "Action required: Upload missing documents on DrStethos",
-    text: "{{message}}",
-    html:
-      '<div style="font-family:Arial,sans-serif;line-height:1.6;color:#111">' +
-      "<p>{{messageHtml}}</p></div>",
-  },
+  documentRequest: documentRequestTemplate,
 };
+
+function getProjectId(fs, path) {
+  const fromEnv =
+    process.env.GOOGLE_CLOUD_PROJECT ||
+    process.env.GCLOUD_PROJECT ||
+    process.env.FIREBASE_PROJECT;
+  if (fromEnv) return fromEnv;
+
+  const firebasercPath = path.join(__dirname, "..", "..", ".firebaserc");
+  if (fs.existsSync(firebasercPath)) {
+    const rc = JSON.parse(fs.readFileSync(firebasercPath, "utf8"));
+    if (rc.projects?.default) return rc.projects.default;
+  }
+
+  return undefined;
+}
+
+function printCredentialHelp(keyPath) {
+  console.error("No Firebase Admin credentials found.\n");
+  console.error("Option A — service account key (recommended):");
+  console.error("  1. Open https://console.firebase.google.com/project/drstethos-app/settings/serviceaccounts/adminsdk");
+  console.error("  2. Generate new private key");
+  console.error(`  3. Save the file as: ${keyPath}`);
+  console.error("  4. Run: npm run seed:templates\n");
+  console.error("Option B — Firebase Console (no key file):");
+  console.error("  Create collection emailTemplates → document documentRequest");
+  console.error("  Paste fields from functions/emailTemplates.seed.json\n");
+  console.error("If GOOGLE_APPLICATION_CREDENTIALS points to a missing file, run:");
+  console.error("  unset GOOGLE_APPLICATION_CREDENTIALS");
+}
+
+function initAdmin(admin, fs, path) {
+  const keyPath = path.join(__dirname, "..", "service-account-key.json");
+  const projectId = getProjectId(fs, path);
+  const credEnvPath = process.env.GOOGLE_APPLICATION_CREDENTIALS;
+
+  if (credEnvPath && !fs.existsSync(path.resolve(credEnvPath))) {
+    console.error(
+      `GOOGLE_APPLICATION_CREDENTIALS points to a missing file: ${credEnvPath}\n`
+    );
+    printCredentialHelp(keyPath);
+    process.exit(1);
+  }
+
+  if (fs.existsSync(keyPath)) {
+    const serviceAccount = require(keyPath);
+    admin.initializeApp({
+      credential: admin.credential.cert(serviceAccount),
+      projectId: serviceAccount.project_id || projectId,
+    });
+    return;
+  }
+
+  if (!credEnvPath) {
+    printCredentialHelp(keyPath);
+    process.exit(1);
+  }
+
+  admin.initializeApp({
+    credential: admin.credential.applicationDefault(),
+    projectId,
+  });
+}
 
 async function main() {
   // Lazy-require so `npm install` without admin SDK credentials still works for build
@@ -95,17 +88,7 @@ async function main() {
   const fs = require("fs");
 
   if (!admin.apps.length) {
-    const keyPath = path.join(__dirname, "..", "service-account-key.json");
-    if (fs.existsSync(keyPath)) {
-      const serviceAccount = require(keyPath);
-      admin.initializeApp({
-        credential: admin.credential.cert(serviceAccount),
-      });
-    } else {
-      admin.initializeApp({
-        credential: admin.credential.applicationDefault(),
-      });
-    }
+    initAdmin(admin, fs, path);
   }
 
   const db = admin.firestore();
