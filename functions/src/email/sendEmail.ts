@@ -1,17 +1,17 @@
-import * as nodemailer from "nodemailer";
 import { onCall, HttpsError } from "firebase-functions/v2/https";
-import { defineSecret } from "firebase-functions/params";
 import { db } from "../firebaseAdmin";
 import { assertAdmin, assertEmailRateLimit } from "../auth/assertAdmin";
+import {
+  createMicrosoftSmtpTransporter,
+  smtpPassword,
+  smtpUser,
+} from "./smtpTransport";
 import {
   isValidEmail,
   isValidTemplateId,
   renderTemplate,
   sanitizeVariables,
 } from "./templateUtils";
-
-const gmailUser = defineSecret("GMAIL_USER");
-const gmailAppPassword = defineSecret("GMAIL_APP_PASSWORD");
 
 interface SendEmailRequest {
   templateId?: string;
@@ -37,12 +37,12 @@ interface EmailTemplateDoc {
  *   variables: { doctorName: "Dr. John", ... }
  * }
  *
- * Gmail credentials stay in Cloud Functions secrets only.
+ * Microsoft SMTP credentials stay in Cloud Functions secrets only.
  */
 export const sendEmail = onCall(
   {
     region: "asia-south1",
-    secrets: [gmailUser, gmailAppPassword],
+    secrets: [smtpUser, smtpPassword],
     timeoutSeconds: 60,
     memory: "256MiB",
   },
@@ -78,6 +78,8 @@ export const sendEmail = onCall(
       ("smtp" in data ||
         "password" in data ||
         "appPassword" in data ||
+        "smtpUser" in data ||
+        "smtpPassword" in data ||
         "gmailUser" in data ||
         "gmailPassword" in data)
     ) {
@@ -117,25 +119,17 @@ export const sendEmail = onCall(
       ? renderTemplate(textTemplate, variables)
       : undefined;
 
-    const user = gmailUser.value();
-    const pass = gmailAppPassword.value();
+    const user = smtpUser.value();
+    const pass = smtpPassword.value();
 
     if (!user || !pass) {
       throw new HttpsError(
         "failed-precondition",
-        "Gmail SMTP secrets are not configured on the server."
+        "SMTP secrets are not configured on the server."
       );
     }
 
-    const transporter = nodemailer.createTransport({
-      host: "smtp.gmail.com",
-      port: 465,
-      secure: true,
-      auth: {
-        user,
-        pass,
-      },
-    });
+    const transporter = createMicrosoftSmtpTransporter(user, pass);
 
     try {
       const info = await transporter.sendMail({

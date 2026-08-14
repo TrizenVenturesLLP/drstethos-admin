@@ -13,9 +13,21 @@
  */
 
 const { documentRequestTemplate } = require("../email/documentRequestTemplate");
+const {
+  doctorApprovalTemplate,
+  hospitalApprovalTemplate,
+} = require("../email/profileApprovalTemplate");
+const {
+  doctorRejectionTemplate,
+  hospitalRejectionTemplate,
+} = require("../email/profileRejectionTemplate");
 
 const templates = {
   documentRequest: documentRequestTemplate,
+  doctorApproval: doctorApprovalTemplate,
+  hospitalApproval: hospitalApprovalTemplate,
+  doctorRejection: doctorRejectionTemplate,
+  hospitalRejection: hospitalRejectionTemplate,
 };
 
 function getProjectId(fs, path) {

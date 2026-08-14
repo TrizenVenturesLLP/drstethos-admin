@@ -20,8 +20,8 @@ import {
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
-import { Textarea } from "@/components/ui/textarea";
+import { ProfileApprovalConfirmDialog } from "@/components/email/ProfileApprovalConfirmDialog";
+import { ProfileRejectionConfirmDialog } from "@/components/email/ProfileRejectionConfirmDialog";
 
 import { toast } from "sonner";
 
@@ -86,6 +86,7 @@ const DoctorProfile = () => {
 
   // rejection dialog
   const [showRejectDialog, setShowRejectDialog] = useState(false);
+  const [showApproveDialog, setShowApproveDialog] = useState(false);
   const [rejectionReason, setRejectionReason] = useState("");
 
   // Fetch doctor profile
@@ -180,8 +181,8 @@ const DoctorProfile = () => {
   // Approve doctor
   const handleApprove = async () => {
     if (!doctor || !profileId) return;
-    setIsProcessing(true);
 
+    setIsProcessing(true);
     try {
       const admin = auth.currentUser;
       if (!admin) {
@@ -207,8 +208,6 @@ const DoctorProfile = () => {
       const userSnap = await getDoc(userRef);
       const userData = userSnap.data() as any;
 
-      console.log("User data:" + userData);
-
       await enqueueNotifications(
         doctor.userId,
         doctor.name,
@@ -218,7 +217,6 @@ const DoctorProfile = () => {
         "APPROVED"
       );
 
-      // Send FCM notification via Cloud Function
       if (userData?.fcmToken) {
         try {
           await sendApprovalNotification({
@@ -236,7 +234,6 @@ const DoctorProfile = () => {
         }
       }
 
-      // Send approval email
       await sendApprovalEmail({
         toEmail: doctor.email,
         profileName: doctor.name,
@@ -245,6 +242,7 @@ const DoctorProfile = () => {
       });
 
       setDoctor({ ...doctor, isVerified: true });
+      setShowApproveDialog(false);
       toast.success("Doctor verified successfully");
     } catch (err) {
       console.error(err);
@@ -490,7 +488,7 @@ const DoctorProfile = () => {
               <Button
                 className="w-full bg-green-600"
                 disabled={doctor.isVerified || isProcessing}
-                onClick={handleApprove}
+                onClick={() => setShowApproveDialog(true)}
               >
                 <CheckCircle className="h-4 w-4 mr-2" />
                 Approve Application
@@ -523,42 +521,30 @@ const DoctorProfile = () => {
         </div>
       </div>
 
-      {/* REJECTION DIALOG */}
-      <Dialog open={showRejectDialog} onOpenChange={setShowRejectDialog}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Reject Application</DialogTitle>
-            <DialogDescription>Provide a reason for rejection.</DialogDescription>
-          </DialogHeader>
+      <ProfileApprovalConfirmDialog
+        open={showApproveDialog}
+        onOpenChange={setShowApproveDialog}
+        profileName={doctor.name}
+        profileType="Doctor"
+        recipientEmail={doctor.email}
+        isProcessing={isProcessing}
+        onConfirm={handleApprove}
+      />
 
-          <Textarea
-            value={rejectionReason}
-            onChange={(e) => setRejectionReason(e.target.value)}
-            rows={5}
-            placeholder="Enter rejection reason..."
-          />
-
-          <DialogFooter>
-            <Button
-              variant="outline"
-              onClick={() => {
-                setShowRejectDialog(false);
-                setRejectionReason("");
-              }}
-            >
-              Cancel
-            </Button>
-
-              <Button
-              variant="destructive"
-              disabled={!rejectionReason.trim() || isProcessing}
-              onClick={confirmReject}
-            >
-              Confirm Rejection
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+      <ProfileRejectionConfirmDialog
+        open={showRejectDialog}
+        onOpenChange={(open) => {
+          setShowRejectDialog(open);
+          if (!open) setRejectionReason("");
+        }}
+        profileName={doctor.name}
+        profileType="Doctor"
+        recipientEmail={doctor.email}
+        rejectionReason={rejectionReason}
+        onRejectionReasonChange={setRejectionReason}
+        isProcessing={isProcessing}
+        onConfirm={confirmReject}
+      />
     </div>
   );
 };

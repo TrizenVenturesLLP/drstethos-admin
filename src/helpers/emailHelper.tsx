@@ -1,5 +1,7 @@
 import emailjs from "@emailjs/browser";
 import { sendEmail } from "@/helpers/cloudEmailHelper";
+import { getApprovalTemplateId } from "@/lib/profileApprovalEmail";
+import { getRejectionTemplateId } from "@/lib/profileRejectionEmail";
 
 const SERVICE_ID = "service_w6oztfn";
 const APPROVAL_TEMPLATE_ID = "template_sw8dute";
@@ -59,9 +61,7 @@ export const sendApprovalEmail = async ({
   profileType = "Hospital",
   dashboardLink = "https://drstethos.com",
 }: ApprovalEmailArgs) => {
-  const templateId = isDoctor(profileType)
-    ? "doctorApproval"
-    : "hospitalApproval";
+  const templateId = getApprovalTemplateId(profileType);
 
   return sendViaCloudOrEmailJs({
     label: "Approval email",
@@ -72,10 +72,13 @@ export const sendApprovalEmail = async ({
         variables: {
           profileName,
           profileType,
+          profile_name: profileName,
+          profile_type: profileType,
           email: toEmail,
           dashboardLink,
-          doctorName: isDoctor(profileType) ? profileName : "",
-          hospitalName: !isDoctor(profileType) ? profileName : "",
+          dashboard_link: dashboardLink,
+          doctorName: String(profileType).toLowerCase() === "doctor" ? profileName : "",
+          hospitalName: String(profileType).toLowerCase() === "hospital" ? profileName : "",
           verificationDate: new Date().toLocaleDateString("en-IN", {
             day: "2-digit",
             month: "short",
@@ -104,9 +107,7 @@ export const sendRejectionEmail = async ({
   profileType = "Hospital",
   rejectionReason,
 }: RejectionEmailArgs) => {
-  const templateId = isDoctor(profileType)
-    ? "doctorRejection"
-    : "hospitalRejection";
+  const templateId = getRejectionTemplateId(profileType);
 
   return sendViaCloudOrEmailJs({
     label: "Rejection email",
@@ -117,8 +118,11 @@ export const sendRejectionEmail = async ({
         variables: {
           profileName,
           profileType,
+          profile_name: profileName,
+          profile_type: profileType,
           email: toEmail,
           rejectionReason,
+          rejection_reason: rejectionReason,
           doctorName: isDoctor(profileType) ? profileName : "",
           hospitalName: !isDoctor(profileType) ? profileName : "",
         },

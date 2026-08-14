@@ -12,15 +12,6 @@ import {
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
 import {
   ArrowLeft,
@@ -39,9 +30,9 @@ import {
   sendApprovalEmail,
   sendRejectionEmail,
 } from "@/helpers/emailHelper";
-import {
-  sendApprovalNotification,
-} from "@/helpers/notificationHelper";
+import { sendApprovalNotification } from "@/helpers/notificationHelper";
+import { ProfileApprovalConfirmDialog } from "@/components/email/ProfileApprovalConfirmDialog";
+import { ProfileRejectionConfirmDialog } from "@/components/email/ProfileRejectionConfirmDialog";
 
 interface HospitalProfile {
   id: string;
@@ -87,6 +78,7 @@ const HospitalProfile = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [isProcessing, setIsProcessing] = useState(false);
   const [showRejectDialog, setShowRejectDialog] = useState(false);
+  const [showApproveDialog, setShowApproveDialog] = useState(false);
   const [rejectionReason, setRejectionReason] = useState("");
 
   useEffect(() => {
@@ -210,6 +202,7 @@ const HospitalProfile = () => {
       });
 
       toast.success("Hospital verified successfully");
+      setShowApproveDialog(false);
     } catch (error) {
       console.error("Error approving hospital:", error);
       toast.error("Failed to verify hospital");
@@ -529,7 +522,7 @@ const HospitalProfile = () => {
             <CardContent className="space-y-3">
               <Button
                 className="w-full bg-green-600 hover:bg-green-700"
-                onClick={handleApprove}
+                onClick={() => setShowApproveDialog(true)}
                 disabled={isProcessing || hospital.isVerified}
               >
                 <CheckCircle className="h-4 w-4 mr-2" />
@@ -615,46 +608,30 @@ const HospitalProfile = () => {
         </div>
       </div>
 
-      {/* Rejection Dialog */}
-      <Dialog open={showRejectDialog} onOpenChange={setShowRejectDialog}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Reject Application</DialogTitle>
-            <DialogDescription>
-              Please provide a reason for rejecting this hospital's application.
-              This will be shared with the applicant.
-            </DialogDescription>
-          </DialogHeader>
-          <div className="py-4">
-            <Textarea
-              placeholder="Enter rejection reason..."
-              value={rejectionReason}
-              onChange={(e) => setRejectionReason(e.target.value)}
-              rows={5}
-              className="resize-none"
-            />
-          </div>
-          <DialogFooter>
-            <Button
-              variant="outline"
-              onClick={() => {
-                setShowRejectDialog(false);
-                setRejectionReason("");
-              }}
-              disabled={isProcessing}
-            >
-              Cancel
-            </Button>
-            <Button
-              variant="destructive"
-              onClick={confirmReject}
-              disabled={isProcessing || !rejectionReason.trim()}
-            >
-              {isProcessing ? "Rejecting..." : "Confirm Rejection"}
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+      <ProfileApprovalConfirmDialog
+        open={showApproveDialog}
+        onOpenChange={setShowApproveDialog}
+        profileName={hospital.name}
+        profileType="Hospital"
+        recipientEmail={hospital.email}
+        isProcessing={isProcessing}
+        onConfirm={handleApprove}
+      />
+
+      <ProfileRejectionConfirmDialog
+        open={showRejectDialog}
+        onOpenChange={(open) => {
+          setShowRejectDialog(open);
+          if (!open) setRejectionReason("");
+        }}
+        profileName={hospital.name}
+        profileType="Hospital"
+        recipientEmail={hospital.email}
+        rejectionReason={rejectionReason}
+        onRejectionReasonChange={setRejectionReason}
+        isProcessing={isProcessing}
+        onConfirm={confirmReject}
+      />
     </div>
   );
 };
