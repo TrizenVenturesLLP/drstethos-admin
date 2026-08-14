@@ -5,7 +5,9 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { Mail, Phone, Clock, MapPin, Loader2 } from "lucide-react";
-import emailjs from "@emailjs/browser";
+import { sendSupportContact } from "@/helpers/supportEmailHelper";
+
+const SUPPORT_EMAIL = "support@drstethos.com";
 
 const Support = () => {
   const [name, setName] = useState("");
@@ -19,45 +21,26 @@ const Support = () => {
     setIsLoading(true);
 
     try {
-      // EmailJS Configuration from environment variables
-      // See EMAILJS_SETUP.md for setup instructions
-      const serviceId = import.meta.env.VITE_EMAILJS_SERVICE_ID;
-      const templateId = import.meta.env.VITE_EMAILJS_TEMPLATE_ID;
-      const publicKey = import.meta.env.VITE_EMAILJS_PUBLIC_KEY;
+      await sendSupportContact({
+        name: name.trim(),
+        email: email.trim(),
+        message: message.trim(),
+      });
 
-      // Check if environment variables are configured
-      if (!serviceId || !templateId || !publicKey) {
-        throw new Error("EmailJS credentials not configured. Please check .env file.");
-      }
-
-      // Template parameters
-      const templateParams = {
-        from_name: name,
-        from_email: email,
-        to_email: "stethosabisha@gmail.com",
-        message: message,
-      };
-
-      // Send email using EmailJS
-      await emailjs.send(serviceId, templateId, templateParams, publicKey);
-
-      // Success notification
       toast({
         title: "Message Sent Successfully!",
         description: "We'll get back to you as soon as possible.",
       });
 
-      // Clear form fields
       setName("");
       setEmail("");
       setMessage("");
     } catch (error) {
       console.error("Error sending email:", error);
-      
-      // Error notification
+
       toast({
         title: "Failed to Send Message",
-        description: "Please try again or contact us directly at stethosabisha@gmail.com",
+        description: `Please try again or contact us directly at ${SUPPORT_EMAIL}`,
         variant: "destructive",
       });
     } finally {
@@ -95,7 +78,7 @@ const Support = () => {
                 </div>
                 <div className="min-w-0">
                   <h4 className="text-sm font-semibold text-gray-900 mb-0.5">Email Us</h4>
-                  <p className="text-sm text-gray-500 font-normal">stethosabisha@gmail.com</p>
+                  <p className="text-sm text-gray-500 font-normal">{SUPPORT_EMAIL}</p>
                 </div>
               </div>
 
