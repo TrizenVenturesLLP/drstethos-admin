@@ -33,7 +33,6 @@ import { Search, Eye, Pencil, Trash2, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import {
   collection,
-  deleteDoc,
   doc,
   getDocs,
   orderBy,
@@ -41,6 +40,7 @@ import {
   updateDoc,
 } from "firebase/firestore";
 import { auth, db } from "@/lib/firebase";
+import { deleteUserAccount as deleteUserAccountFn } from "@/helpers/userAdminHelper";
 
 interface ManagedUser {
   id: string;
@@ -274,30 +274,18 @@ const AdminUsers = () => {
 
     setIsDeleting(true);
     try {
-      if (deleteUser.profileId) {
-        const collectionName = deleteUser.profileId.startsWith("doctor")
-          ? "doctors"
-          : deleteUser.profileId.startsWith("hospital")
-          ? "hospitals"
-          : deleteUser.role === "hospital"
-          ? "hospitals"
-          : "doctors";
-
-        try {
-          await deleteDoc(doc(db, collectionName, deleteUser.profileId));
-        } catch (profileError) {
-          console.warn("Profile delete skipped:", profileError);
-        }
-      }
-
-      await deleteDoc(doc(db, "users", deleteUser.id));
+      await deleteUserAccountFn({
+        userId: deleteUser.uid || deleteUser.id,
+        profileId: deleteUser.profileId,
+        role: deleteUser.role,
+      });
 
       setUsers((prev) => prev.filter((u) => u.id !== deleteUser.id));
-      toast.success("User deleted successfully");
+      toast.success("User and login account deleted successfully");
       setDeleteUser(null);
     } catch (error) {
       console.error("Error deleting user:", error);
-      toast.error("Failed to delete user");
+      toast.error("Failed to delete user completely");
     } finally {
       setIsDeleting(false);
     }
@@ -604,7 +592,8 @@ const AdminUsers = () => {
               This will permanently remove{" "}
               <span className="font-medium text-slate-700">{deleteUser?.name}</span>
               {deleteUser?.email ? ` (${deleteUser.email})` : ""} from the platform
-              {deleteUser?.profileId ? " and their linked profile" : ""}. This action cannot be undone.
+              {deleteUser?.profileId ? ", their linked profile," : ""} and their Firebase login
+              (so the email can be used again). This action cannot be undone.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>

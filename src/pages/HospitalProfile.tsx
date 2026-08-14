@@ -2,29 +2,22 @@ import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { doc, getDoc, updateDoc } from "firebase/firestore";
 import { db, auth } from "@/lib/firebase";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Separator } from "@/components/ui/separator";
+import { ProfileReviewHeader } from "@/components/admin/profileReview/ProfileReviewHeader";
+import {
+  DocumentLink,
+  InfoGrid,
+  InfoItem,
+  ProfileSection,
+} from "@/components/admin/profileReview/ProfileSection";
+import { VerificationActionsPanel } from "@/components/admin/profileReview/VerificationActionsPanel";
 import { toast } from "sonner";
 import {
-  ArrowLeft,
   Building2,
   MapPin,
   Phone,
-  Mail,
-  Globe,
   FileText,
   Calendar,
-  CheckCircle,
-  XCircle,
-  Eye,
 } from "lucide-react";
 import {
   sendApprovalEmail,
@@ -318,294 +311,141 @@ const HospitalProfile = () => {
 
   if (!hospital) {
     return (
-      <Card>
-        <CardContent className="py-12 text-center">
-          <p className="text-slate-500">Hospital profile not found</p>
-        </CardContent>
-      </Card>
+      <div className="rounded-xl border border-slate-200 bg-white py-12 text-center text-slate-500">
+        Hospital profile not found
+      </div>
     );
   }
 
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div>
-        <Button
-          variant="ghost"
-          onClick={() => navigate("/admin/verify")}
-          className="h-9 px-2 -ml-2 mb-3 text-slate-600"
-        >
-          <ArrowLeft className="h-4 w-4 mr-2" />
-          Back to Verifications
-        </Button>
-        <div className="flex items-start justify-between gap-4">
-          <div>
-            <h1 className="text-xl font-semibold text-slate-900 tracking-tight">
-              {hospital.name}
-            </h1>
-            <p className="text-sm text-slate-500 mt-1">Hospital Profile Verification</p>
-          </div>
-          <Badge
-            variant={hospital.isVerified ? "default" : "secondary"}
-            className={
-              hospital.isVerified
-                ? "bg-green-50 text-green-700 border border-green-200"
-                : "bg-orange-50 text-orange-700 border border-orange-200"
-            }
-          >
-            {hospital.isVerified ? "Verified" : "Pending Verification"}
-          </Badge>
-        </div>
-      </div>
+      <ProfileReviewHeader
+        name={hospital.name}
+        subtitle="Hospital profile review"
+        isVerified={hospital.isVerified}
+        photoUrl={hospital.profilePhotoUrl}
+        onBack={() => navigate("/admin/verify")}
+      />
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Main Information */}
-        <div className="lg:col-span-2 space-y-6">
-          {/* Profile Photo */}
-          {hospital.profilePhotoUrl && (
-            <Card>
-              <CardHeader>
-                <CardTitle>Profile Photo</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <img
-                  src={hospital.profilePhotoUrl}
-                  alt={hospital.name}
-                  className="w-full h-64 object-cover rounded-lg"
-                />
-              </CardContent>
-            </Card>
-          )}
-
-          {/* Basic Information */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Building2 className="h-5 w-5" />
-                Basic Information
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <p className="text-sm text-slate-500">Hospital Type</p>
-                  <p className="font-medium">
-                    {hospital.hospitalType === "other"
-                      ? hospital.customHospitalType
-                      : hospital.hospitalType}
-                  </p>
-                </div>
-                <div>
-                  <p className="text-sm text-slate-500">License Number</p>
-                  <p className="font-medium">{hospital.licenseNumber}</p>
-                </div>
-                <div>
-                  <p className="text-sm text-slate-500">Specialization</p>
-                  <p className="font-medium">{hospital.specialization}</p>
-                </div>
-                <div>
-                  <p className="text-sm text-slate-500">Active Status</p>
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
+        <div className="space-y-4 lg:col-span-2">
+          <ProfileSection title="Hospital details" icon={Building2}>
+            <InfoGrid>
+              <InfoItem
+                label="Hospital type"
+                value={
+                  hospital.hospitalType === "other"
+                    ? hospital.customHospitalType
+                    : hospital.hospitalType
+                }
+              />
+              <InfoItem label="License number" value={hospital.licenseNumber} />
+              <InfoItem label="Specialization" value={hospital.specialization} />
+              <InfoItem
+                label="Status"
+                value={
                   <Badge variant={hospital.isActive ? "default" : "secondary"}>
                     {hospital.isActive ? "Active" : "Inactive"}
                   </Badge>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+                }
+              />
+            </InfoGrid>
+          </ProfileSection>
 
-          {/* Contact Information */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Phone className="h-5 w-5" />
-                Contact Information
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-3">
-              <div className="flex items-center gap-3">
-                <Mail className="h-4 w-4 text-slate-500" />
-                <div>
-                  <p className="text-sm text-slate-500">Email</p>
-                  <p className="font-medium">{hospital.email}</p>
-                </div>
-              </div>
-              <div className="flex items-center gap-3">
-                <Phone className="h-4 w-4 text-slate-500" />
-                <div>
-                  <p className="text-sm text-slate-500">Contact Number</p>
-                  <p className="font-medium">{hospital.contactNumber}</p>
-                </div>
-              </div>
-              {hospital.website && (
-                <div className="flex items-center gap-3">
-                  <Globe className="h-4 w-4 text-slate-500" />
-                  <div>
-                    <p className="text-sm text-slate-500">Website</p>
+          <ProfileSection title="Contact" icon={Phone}>
+            <InfoGrid>
+              <InfoItem label="Email" value={hospital.email} />
+              <InfoItem label="Phone" value={hospital.contactNumber} />
+              <InfoItem
+                label="Website"
+                value={
+                  hospital.website ? (
                     <a
                       href={hospital.website}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="font-medium text-blue-600 hover:underline"
+                      className="text-blue-600 hover:underline"
                     >
                       {hospital.website}
                     </a>
-                  </div>
-                </div>
-              )}
-            </CardContent>
-          </Card>
+                  ) : undefined
+                }
+                className="sm:col-span-2"
+              />
+            </InfoGrid>
+          </ProfileSection>
 
-          {/* Location Information */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <MapPin className="h-5 w-5" />
-                Location
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-2">
-              <p className="font-medium">{hospital.address}</p>
-              <p className="text-slate-600">
-                {hospital.city}, {hospital.state} - {hospital.pinCode}
+          <ProfileSection title="Location" icon={MapPin}>
+            <p className="text-sm font-medium text-slate-800">{hospital.address}</p>
+            <p className="mt-1 text-sm text-slate-600">
+              {hospital.city}, {hospital.state} – {hospital.pinCode}
+            </p>
+          </ProfileSection>
+
+          {hospital.aboutHospital ? (
+            <ProfileSection title="About" icon={FileText}>
+              <p className="whitespace-pre-wrap text-sm leading-relaxed text-slate-700">
+                {hospital.aboutHospital}
               </p>
-            </CardContent>
-          </Card>
+            </ProfileSection>
+          ) : null}
 
-          {/* About Hospital */}
-          {hospital.aboutHospital && (
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <FileText className="h-5 w-5" />
-                  About Hospital
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-slate-700 whitespace-pre-wrap">
-                  {hospital.aboutHospital}
-                </p>
-              </CardContent>
-            </Card>
-          )}
-
-          {/* License Certificate */}
-          {hospital.licenseCertificateUrl && (
-            <Card>
-              <CardHeader>
-                <CardTitle>License Certificate</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <a
-                  href={hospital.licenseCertificateUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-blue-600 hover:underline flex items-center gap-2"
-                >
-                  <FileText className="h-4 w-4" />
-                  View License Certificate
-                </a>
-              </CardContent>
-            </Card>
-          )}
+          {hospital.licenseCertificateUrl ? (
+            <ProfileSection title="License certificate" icon={FileText}>
+              <DocumentLink
+                label="View license certificate"
+                href={hospital.licenseCertificateUrl}
+              />
+            </ProfileSection>
+          ) : null}
         </div>
 
-        {/* Sidebar */}
-        <div className="space-y-6">
-          {/* Actions */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Verification Actions</CardTitle>
-              <CardDescription>
-                Review and approve or reject this application
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-3">
-              <Button
-                className="w-full bg-green-600 hover:bg-green-700"
-                onClick={() => setShowApproveDialog(true)}
-                disabled={isProcessing || hospital.isVerified}
-              >
-                <CheckCircle className="h-4 w-4 mr-2" />
-                {hospital.isVerified
-                  ? "Already Approved"
-                  : "Approve Application"}
-              </Button>
-              <Button
-                variant="outline"
-                className="w-full text-red-600 border-red-200 hover:bg-red-50"
-                onClick={handleReject}
-                disabled={isProcessing}
-              >
-                <XCircle className="h-4 w-4 mr-2" />
-                {hospital.isVerified
-                  ? "Revoke Verification"
-                  : "Reject Application"}
-              </Button>
-            </CardContent>
-          </Card>
+        <VerificationActionsPanel
+          isVerified={hospital.isVerified}
+          isProcessing={isProcessing}
+          onApprove={() => setShowApproveDialog(true)}
+          onReject={handleReject}
+        >
+          {userData && (userData.rejectionReason || userData.rejectedAt) ? (
+            <ProfileSection title="Previous rejection" className="border-red-200 bg-red-50/40">
+              <div className="space-y-2 text-sm">
+                {userData.rejectedByAdminEmail ? (
+                  <InfoItem label="Rejected by" value={userData.rejectedByAdminEmail} />
+                ) : null}
+                {userData.rejectedAt ? (
+                  <InfoItem
+                    label="Rejected at"
+                    value={
+                      typeof userData.rejectedAt?.toDate === "function"
+                        ? userData.rejectedAt.toDate().toLocaleString("en-IN")
+                        : new Date(userData.rejectedAt).toLocaleString("en-IN")
+                    }
+                  />
+                ) : null}
+                {userData.rejectionReason ? (
+                  <div className="rounded-lg border border-red-200 bg-white p-3 text-sm text-slate-700">
+                    <p className="text-xs font-medium uppercase tracking-wide text-red-500">Reason</p>
+                    <p className="mt-1">{userData.rejectionReason}</p>
+                  </div>
+                ) : null}
+              </div>
+            </ProfileSection>
+          ) : null}
 
-          {/* Admin Action History */}
-          {userData && (userData.rejectionReason || userData.rejectedAt) && (
-            <Card className="border-red-200 bg-red-50">
-              <CardHeader>
-                <CardTitle className="text-sm">Rejection Details</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-2 text-xs">
-                <div className="p-2 bg-white rounded border border-red-200">
-                  <p className="font-semibold text-red-700 mb-1">
-                    ✗ Application Rejected
-                  </p>
-                  {userData.rejectedByAdminEmail && (
-                    <p className="text-slate-600">
-                      By: {userData.rejectedByAdminEmail}
-                    </p>
-                  )}
-                  {userData.rejectedAt && (
-                    <p className="text-slate-500">
-                      {typeof userData.rejectedAt?.toDate === "function"
-                        ? userData.rejectedAt.toDate().toLocaleString()
-                        : new Date(userData.rejectedAt).toLocaleString()}
-                    </p>
-                  )}
-                  {userData.rejectionReason && (
-                    <p className="text-slate-700 mt-2 p-2 bg-red-50 rounded italic">
-                      <span className="font-semibold not-italic">Reason:</span>{" "}
-                      {userData.rejectionReason}
-                    </p>
-                  )}
-                </div>
-              </CardContent>
-            </Card>
-          )}
-
-          {/* Metadata */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Calendar className="h-5 w-5" />
-                Timeline
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-3">
-              <div>
-                <p className="text-sm text-slate-500">Created At</p>
-                <p className="font-medium">
-                  {hospital.createdAt?.toDate().toLocaleString()}
-                </p>
-              </div>
-              <div>
-                <p className="text-sm text-slate-500">Last Updated</p>
-                <p className="font-medium">
-                  {hospital.updatedAt?.toDate().toLocaleString()}
-                </p>
-              </div>
-              <div>
-                <p className="text-sm text-slate-500">User ID</p>
-                <p className="font-mono text-xs">{hospital.userId}</p>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
+          <ProfileSection title="Timeline" icon={Calendar}>
+            <div className="space-y-3 text-sm">
+              <InfoItem
+                label="Submitted"
+                value={hospital.createdAt?.toDate?.().toLocaleString("en-IN")}
+              />
+              <InfoItem
+                label="Last updated"
+                value={hospital.updatedAt?.toDate?.().toLocaleString("en-IN")}
+              />
+              <InfoItem label="User ID" value={<span className="font-mono text-xs">{hospital.userId}</span>} />
+            </div>
+          </ProfileSection>
+        </VerificationActionsPanel>
       </div>
 
       <ProfileApprovalConfirmDialog

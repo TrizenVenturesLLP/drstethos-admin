@@ -11,32 +11,25 @@ import {
 } from "firebase/firestore";
 import { db, auth } from "@/lib/firebase";
 
+import { ProfileReviewHeader } from "@/components/admin/profileReview/ProfileReviewHeader";
 import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-  CardDescription,
-} from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
+  DocumentLink,
+  InfoGrid,
+  InfoItem,
+  ProfileSection,
+} from "@/components/admin/profileReview/ProfileSection";
+import { VerificationActionsPanel } from "@/components/admin/profileReview/VerificationActionsPanel";
 import { ProfileApprovalConfirmDialog } from "@/components/email/ProfileApprovalConfirmDialog";
 import { ProfileRejectionConfirmDialog } from "@/components/email/ProfileRejectionConfirmDialog";
 
 import { toast } from "sonner";
 
 import {
-  ArrowLeft,
   User,
-  Mail,
-  Phone,
-  MapPin,
   Briefcase,
   FileText,
   Award,
   Calendar,
-  CheckCircle,
-  XCircle,
 } from "lucide-react";
 
 import {
@@ -339,186 +332,104 @@ const DoctorProfile = () => {
   const handleRejectClick = () => setShowRejectDialog(true);
 
   if (isLoading) {
-    return <div className="text-sm text-slate-500">Loading…</div>;
+    return (
+      <div className="animate-pulse space-y-4">
+        <div className="h-24 rounded-xl bg-slate-200/70" />
+        <div className="grid gap-4 lg:grid-cols-3">
+          <div className="h-64 rounded-xl bg-slate-200/70 lg:col-span-2" />
+          <div className="h-48 rounded-xl bg-slate-200/70" />
+        </div>
+      </div>
+    );
   }
 
   if (!doctor) {
     return (
-      <Card>
-        <CardContent className="py-12 text-center text-slate-500">Doctor not found</CardContent>
-      </Card>
+      <div className="rounded-xl border border-slate-200 bg-white py-12 text-center text-slate-500">
+        Doctor not found
+      </div>
     );
   }
 
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div>
-        <Button
-          variant="ghost"
-          onClick={() => navigate("/admin/verify")}
-          className="h-9 px-2 -ml-2 mb-3 text-slate-600"
-        >
-          <ArrowLeft className="h-4 w-4 mr-2" />
-          Back to Verifications
-        </Button>
+      <ProfileReviewHeader
+        name={doctor.name}
+        subtitle="Doctor profile review"
+        isVerified={doctor.isVerified}
+        photoUrl={doctor.profilePhotoUrl}
+        onBack={() => navigate("/admin/verify")}
+      />
 
-        <div className="flex justify-between items-start gap-4">
-          <div>
-            <h1 className="text-xl font-semibold text-slate-900 tracking-tight">{doctor.name}</h1>
-            <p className="text-sm text-slate-500 mt-1">Doctor Profile Verification</p>
-          </div>
-          <Badge
-            className={
-              doctor.isVerified
-                ? "bg-green-50 text-green-700 border border-green-200"
-                : "bg-orange-50 text-orange-700 border border-orange-200"
-            }
-          >
-            {doctor.isVerified ? "Verified" : "Pending Verification"}
-          </Badge>
-        </div>
-      </div>
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
+        <div className="space-y-4 lg:col-span-2">
+          <ProfileSection title="Contact & identity" icon={User}>
+            <InfoGrid>
+              <InfoItem label="Email" value={doctor.email} />
+              <InfoItem label="Phone" value={doctor.phoneNumber} />
+              <InfoItem
+                label="Gender"
+                value={doctor.gender ? (
+                  <span className="capitalize">{doctor.gender}</span>
+                ) : undefined}
+              />
+              <InfoItem label="Age" value={doctor.age} />
+              <InfoItem label="Location" value={doctor.location} />
+              <InfoItem label="MCA number" value={doctor.mcaNumber} />
+            </InfoGrid>
+          </ProfileSection>
 
-      {/* Layout */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <ProfileSection title="Professional details" icon={Briefcase}>
+            <InfoGrid>
+              <InfoItem label="Specialization" value={doctor.specialization} />
+              <InfoItem
+                label="Experience"
+                value={
+                  doctor.yearsOfExperience !== undefined
+                    ? `${doctor.yearsOfExperience} years`
+                    : undefined
+                }
+              />
+              <InfoItem label="Qualifications" value={doctor.qualifications} className="sm:col-span-2" />
+            </InfoGrid>
+          </ProfileSection>
 
-        {/* LEFT SIDE */}
-        <div className="space-y-6 lg:col-span-2">
-          {doctor.profilePhotoUrl && (
-            <Card>
-              <CardHeader>
-                <CardTitle>Profile Photo</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <img
-                  src={doctor.profilePhotoUrl}
-                  className="w-full h-64 object-cover rounded-lg"
-                />
-              </CardContent>
-            </Card>
-          )}
+          {doctor.bio ? (
+            <ProfileSection title="Bio" icon={FileText}>
+              <p className="whitespace-pre-wrap text-sm leading-relaxed text-slate-700">{doctor.bio}</p>
+            </ProfileSection>
+          ) : null}
 
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <User className="h-5 w-5" />
-                Basic Information
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-sm text-slate-600">Email: {doctor.email}</p>
-              {doctor.phoneNumber && (
-                <p className="text-sm text-slate-600">
-                  Phone: {doctor.phoneNumber}
-                </p>
-              )}
-              {doctor.gender && (
-                <p className="text-sm text-slate-600 capitalize">
-                  Gender: {doctor.gender}
-                </p>
-              )}
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Briefcase className="h-5 w-5" />
-                Professional Details
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p>Specialization: {doctor.specialization}</p>
-              <p>Experience: {doctor.yearsOfExperience} years</p>
-              {doctor.qualifications && (
-                <p>Qualifications: {doctor.qualifications}</p>
-              )}
-            </CardContent>
-          </Card>
-
-          {doctor.bio && (
-            <Card>
-              <CardHeader>
-                <CardTitle>
-                  <FileText className="h-5 w-5" /> Bio
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="whitespace-pre-wrap">{doctor.bio}</p>
-              </CardContent>
-            </Card>
-          )}
-
-          {certificates.length > 0 && (
-            <Card>
-              <CardHeader>
-                <CardTitle>
-                  <Award className="h-5 w-5" /> Certificates
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
+          {certificates.length > 0 ? (
+            <ProfileSection title="Certificates & documents" icon={Award}>
+              <div className="space-y-2">
                 {certificates.map((c) => (
-                  <div key={c.id} className="border p-3 rounded mb-2 flex justify-between">
-                    <div>
-                      <p>{c.fileName}</p>
-                    </div>
-                    <a
-                      href={c.fileUrl}
-                      target="_blank"
-                      className="text-blue-600 underline"
-                    >
-                      View
-                    </a>
-                  </div>
+                  <DocumentLink key={c.id} label={c.fileName || "Certificate"} href={c.fileUrl} />
                 ))}
-              </CardContent>
-            </Card>
-          )}
+              </div>
+            </ProfileSection>
+          ) : null}
         </div>
 
-        {/* RIGHT SIDE */}
-        <div className="space-y-6">
-          <Card>
-            <CardHeader>
-              <CardTitle>Verification Actions</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-3">
-
-              <Button
-                className="w-full bg-green-600"
-                disabled={doctor.isVerified || isProcessing}
-                onClick={() => setShowApproveDialog(true)}
-              >
-                <CheckCircle className="h-4 w-4 mr-2" />
-                Approve Application
-              </Button>
-
-              <Button
-                variant="outline"
-                className="w-full text-red-600 border-red-200"
-                onClick={handleRejectClick}
-                disabled={isProcessing}
-              >
-                <XCircle className="h-4 w-4 mr-2" />
-                Reject Application
-              </Button>
-
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader>
-              <CardTitle>
-                <Calendar className="h-5 w-5" /> Timeline
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p>Created: {doctor.createdAt?.toDate?.().toLocaleString()}</p>
-              <p>Updated: {doctor.updatedAt?.toDate?.().toLocaleString()}</p>
-            </CardContent>
-          </Card>
-        </div>
+        <VerificationActionsPanel
+          isVerified={doctor.isVerified}
+          isProcessing={isProcessing}
+          onApprove={() => setShowApproveDialog(true)}
+          onReject={handleRejectClick}
+        >
+          <ProfileSection title="Timeline" icon={Calendar}>
+            <div className="space-y-3 text-sm">
+              <InfoItem
+                label="Submitted"
+                value={doctor.createdAt?.toDate?.().toLocaleString("en-IN")}
+              />
+              <InfoItem
+                label="Last updated"
+                value={doctor.updatedAt?.toDate?.().toLocaleString("en-IN")}
+              />
+            </div>
+          </ProfileSection>
+        </VerificationActionsPanel>
       </div>
 
       <ProfileApprovalConfirmDialog
