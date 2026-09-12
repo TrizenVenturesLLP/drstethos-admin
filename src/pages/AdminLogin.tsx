@@ -186,7 +186,7 @@ const AdminLogin = () => {
 
             <Button
               type="submit"
-              className="w-full h-11 text-sm font-medium rounded-lg bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 shadow-sm"
+              className="w-full h-11 text-sm font-medium rounded-lg bg-blue-600 hover:bg-blue-700 shadow-sm"
               disabled={isLoading}
             >
               {isLoading ? (

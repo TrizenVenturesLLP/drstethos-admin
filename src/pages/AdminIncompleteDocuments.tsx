@@ -420,34 +420,29 @@ const AdminIncompleteDocuments = () => {
   }
 
   return (
-    <div className="space-y-5">
-      <div>
-        <p className="text-sm text-slate-500 font-normal">
-          Doctors missing required documents or profile details (resume, experience, education). Contact them to complete their profile.
-        </p>
+    <div className="space-y-4">
+      <div className="flex flex-wrap items-center gap-x-5 gap-y-1 text-[12px] text-slate-500 border-b border-slate-100 pb-3">
+        <span>
+          Incomplete <span className="font-semibold text-slate-900 tabular-nums">{counts.total}</span>
+        </span>
+        <span>
+          Not contacted{" "}
+          <span className="font-semibold text-amber-600 tabular-nums">{counts.notContacted}</span>
+        </span>
+        <span>
+          Contacted{" "}
+          <span className="font-semibold text-blue-600 tabular-nums">{counts.contacted}</span>
+        </span>
       </div>
 
-      <div className="flex flex-wrap gap-4 text-sm">
-        <div className="text-slate-500">
-          Incomplete <span className="font-semibold text-slate-900">{counts.total}</span>
-        </div>
-        <div className="text-slate-500">
-          Not contacted <span className="font-semibold text-orange-600">{counts.notContacted}</span>
-        </div>
-        <div className="text-slate-500">
-          Already contacted <span className="font-semibold text-blue-600">{counts.contacted}</span>
-        </div>
-      </div>
-
-      <div className="rounded-lg border border-slate-200 bg-white overflow-hidden">
-        <div className="flex flex-col gap-3 border-b border-slate-100 p-3 sm:flex-row sm:items-center sm:justify-between">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div className="relative flex-1 max-w-md">
             <Search className="absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-slate-400" />
             <Input
               placeholder="Search doctors or missing documents..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="h-9 pl-9 text-sm border-slate-200 bg-slate-50/50"
+              className="h-9 pl-9 text-sm border-slate-200 bg-slate-50/60"
             />
           </div>
 
@@ -463,8 +458,8 @@ const AdminIncompleteDocuments = () => {
                 onClick={() => setStatusFilter(tab.id)}
                 className={`h-8 rounded-md px-3 text-xs transition-colors ${
                   statusFilter === tab.id
-                    ? "bg-blue-600 text-white"
-                    : "bg-slate-50 text-slate-600 hover:bg-slate-100"
+                    ? "bg-slate-900 text-white"
+                    : "bg-slate-100 text-slate-600 hover:bg-slate-200/80"
                 }`}
               >
                 {tab.label}
@@ -481,36 +476,36 @@ const AdminIncompleteDocuments = () => {
               Request selected ({selectedIds.size})
             </Button>
           </div>
-        </div>
+      </div>
 
-        <div className="overflow-x-auto">
+        <div className="overflow-x-auto -mx-1">
           <table className="w-full min-w-[900px] text-left">
             <thead>
-              <tr className="border-b border-slate-100 bg-slate-50/80 text-[11px] uppercase tracking-wide text-slate-500">
-                <th className="px-4 py-2.5 font-medium w-10">
+              <tr className="border-b border-slate-200 text-[11px] uppercase tracking-wide text-slate-500">
+                <th className="px-2 py-2.5 font-medium w-10 sm:px-3">
                   <Checkbox
                     checked={filtered.length > 0 && selectedIds.size === filtered.length}
                     onCheckedChange={toggleSelectAll}
                     aria-label="Select all"
                   />
                 </th>
-                <th className="px-4 py-2.5 font-medium">Doctor</th>
-                <th className="px-4 py-2.5 font-medium">Missing documents</th>
-                <th className="px-4 py-2.5 font-medium">Request status</th>
-                <th className="px-4 py-2.5 font-medium text-right">Actions</th>
+                <th className="px-2 py-2.5 font-medium sm:px-3">Doctor</th>
+                <th className="px-2 py-2.5 font-medium sm:px-3">Missing documents</th>
+                <th className="px-2 py-2.5 font-medium sm:px-3">Request status</th>
+                <th className="px-2 py-2.5 font-medium text-right sm:px-3">Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100">
               {filtered.map((doctor) => (
-                <tr key={doctor.id} className="hover:bg-slate-50/70">
-                  <td className="px-4 py-3">
+                <tr key={doctor.id} className="hover:bg-slate-50">
+                  <td className="px-2 py-2.5 sm:px-3">
                     <Checkbox
                       checked={selectedIds.has(doctor.id)}
                       onCheckedChange={() => toggleSelect(doctor.id)}
                       aria-label={`Select ${doctor.name}`}
                     />
                   </td>
-                  <td className="px-4 py-3">
+                  <td className="px-2 py-2.5 sm:px-3">
                     <div className="min-w-0">
                       <p className="text-[13px] font-medium text-slate-900 truncate">
                         {doctor.name}
@@ -521,12 +516,12 @@ const AdminIncompleteDocuments = () => {
                       )}
                     </div>
                   </td>
-                  <td className="px-4 py-3">
+                  <td className="px-2 py-2.5 sm:px-3">
                     <div className="flex flex-wrap gap-1.5">
                       {doctor.missing.map((key) => (
                         <span
                           key={key}
-                          className="inline-flex items-center gap-1 rounded-full bg-orange-50 text-orange-700 px-2 py-0.5 text-[11px] font-medium"
+                          className="inline-flex items-center gap-1 text-[11px] font-medium text-amber-700"
                         >
                           <FileWarning className="h-3 w-3" />
                           {MISSING_DOC_LABELS[key]}
@@ -534,13 +529,11 @@ const AdminIncompleteDocuments = () => {
                       ))}
                     </div>
                   </td>
-                  <td className="px-4 py-3">
+                  <td className="px-2 py-2.5 sm:px-3">
                     {doctor.documentsRequestSentAt ? (
                       <div>
-                        <span className="inline-flex rounded-full bg-blue-50 text-blue-700 px-2 py-0.5 text-[11px] font-medium">
-                          Contacted
-                        </span>
-                        <p className="text-[11px] text-slate-400 mt-1">
+                        <span className="text-[12px] font-medium text-blue-700">Contacted</span>
+                        <p className="text-[11px] text-slate-400 mt-0.5">
                           {doctor.documentsRequestSentAt.toLocaleDateString("en-US", {
                             month: "short",
                             day: "numeric",
@@ -552,12 +545,10 @@ const AdminIncompleteDocuments = () => {
                         </p>
                       </div>
                     ) : (
-                      <span className="inline-flex rounded-full bg-slate-100 text-slate-600 px-2 py-0.5 text-[11px] font-medium">
-                        Not contacted
-                      </span>
+                      <span className="text-[12px] font-medium text-slate-500">Not contacted</span>
                     )}
                   </td>
-                  <td className="px-4 py-3">
+                  <td className="px-2 py-2.5 sm:px-3">
                     <div className="flex items-center justify-end gap-1">
                       <Button
                         size="sm"
@@ -598,7 +589,6 @@ const AdminIncompleteDocuments = () => {
 
           {filtered.length === 0 && (
             <div className="py-14 text-center">
-              <FileWarning className="mx-auto mb-3 h-8 w-8 text-slate-300" />
               <p className="text-sm text-slate-400">
                 {doctors.length === 0
                   ? "No doctors with incomplete documents found"
@@ -608,10 +598,9 @@ const AdminIncompleteDocuments = () => {
           )}
         </div>
 
-        <div className="border-t border-slate-100 px-4 py-2.5 text-[11px] text-slate-400">
+        <div className="border-t border-slate-100 pt-2.5 text-[11px] text-slate-400">
           Showing {filtered.length} of {doctors.length}
         </div>
-      </div>
 
       <Dialog
         open={bulkMode || !!contactTarget}

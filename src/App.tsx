@@ -35,7 +35,7 @@ const App = () => (
           <Route path="/privacy-policy/delete-account" element={<DeleteAccount />} />
           <Route path="/termsandservices/forhospitals" element={<TermsForHospitals />} />
           <Route path="/termsandservices/fordoctors" element={<TermsForDoctors />} />
-          {/* <Route path="/safety-standards" element={<SafetyStandards />} /> */}
+          <Route path="/safety-standards" element={<SafetyStandards />} />
 
           {/* Admin Routes */}
           <Route path="/admin" element={<AdminLogin />} />

@@ -301,31 +301,30 @@ const AdminUsers = () => {
   }
 
   return (
-    <div className="space-y-5">
-      <div className="flex flex-wrap gap-4 text-sm">
-        <div className="text-slate-500">
-          Total <span className="font-semibold text-slate-900">{counts.total}</span>
-        </div>
-        <div className="text-slate-500">
-          Doctors <span className="font-semibold text-slate-900">{counts.doctors}</span>
-        </div>
-        <div className="text-slate-500">
-          Hospitals <span className="font-semibold text-slate-900">{counts.hospitals}</span>
-        </div>
-        <div className="text-slate-500">
-          Verified <span className="font-semibold text-green-600">{counts.verified}</span>
-        </div>
+    <div className="space-y-4">
+      <div className="flex flex-wrap items-center gap-x-5 gap-y-1 text-[12px] text-slate-500 border-b border-slate-100 pb-3">
+        <span>
+          Total <span className="font-semibold text-slate-900 tabular-nums">{counts.total}</span>
+        </span>
+        <span>
+          Doctors <span className="font-semibold text-slate-900 tabular-nums">{counts.doctors}</span>
+        </span>
+        <span>
+          Hospitals <span className="font-semibold text-slate-900 tabular-nums">{counts.hospitals}</span>
+        </span>
+        <span>
+          Verified <span className="font-semibold text-emerald-600 tabular-nums">{counts.verified}</span>
+        </span>
       </div>
 
-      <div className="rounded-lg border border-slate-200 bg-white overflow-hidden">
-        <div className="flex flex-col gap-3 border-b border-slate-100 p-3 sm:flex-row sm:items-center sm:justify-between">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div className="relative flex-1 max-w-md">
             <Search className="absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-slate-400" />
             <Input
               placeholder="Search users..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="h-9 pl-9 text-sm border-slate-200 bg-slate-50/50"
+              className="h-9 pl-9 text-sm border-slate-200 bg-slate-50/60"
             />
           </div>
 
@@ -342,14 +341,14 @@ const AdminUsers = () => {
                 onClick={() => setRoleTab(tab.id)}
                 className={`h-8 rounded-md px-3 text-xs transition-colors ${
                   roleTab === tab.id
-                    ? "bg-blue-600 text-white"
-                    : "bg-slate-50 text-slate-600 hover:bg-slate-100"
+                    ? "bg-slate-900 text-white"
+                    : "bg-slate-100 text-slate-600 hover:bg-slate-200/80"
                 }`}
               >
                 {tab.label}
               </button>
             ))}
-            <span className="mx-1 hidden h-8 w-px bg-slate-200 sm:block" />
+            <span className="mx-0.5 hidden h-8 w-px bg-slate-200 sm:block" />
             {[
               { id: "all", label: "Any status" },
               { id: "verified", label: "Verified" },
@@ -362,59 +361,59 @@ const AdminUsers = () => {
                 onClick={() => setStatusTab(tab.id)}
                 className={`h-8 rounded-md px-3 text-xs transition-colors ${
                   statusTab === tab.id
-                    ? "bg-slate-900 text-white"
-                    : "bg-slate-50 text-slate-600 hover:bg-slate-100"
+                    ? "bg-blue-600 text-white"
+                    : "bg-slate-100 text-slate-600 hover:bg-slate-200/80"
                 }`}
               >
                 {tab.label}
               </button>
             ))}
           </div>
-        </div>
+      </div>
 
-        <div className="overflow-x-auto">
+        <div className="overflow-x-auto -mx-1">
           <table className="w-full min-w-[820px] text-left">
             <thead>
-              <tr className="border-b border-slate-100 bg-slate-50/80 text-[11px] uppercase tracking-wide text-slate-500">
-                <th className="px-4 py-2.5 font-medium">User</th>
-                <th className="px-4 py-2.5 font-medium">Role</th>
-                <th className="px-4 py-2.5 font-medium">Status</th>
-                <th className="px-4 py-2.5 font-medium">Joined</th>
-                <th className="px-4 py-2.5 font-medium text-right">Actions</th>
+              <tr className="border-b border-slate-200 text-[11px] uppercase tracking-wide text-slate-500">
+                <th className="px-2 py-2.5 font-medium sm:px-3">User</th>
+                <th className="px-2 py-2.5 font-medium sm:px-3">Role</th>
+                <th className="px-2 py-2.5 font-medium sm:px-3">Status</th>
+                <th className="px-2 py-2.5 font-medium sm:px-3">Joined</th>
+                <th className="px-2 py-2.5 font-medium text-right sm:px-3">Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100">
               {filteredUsers.map((user) => (
-                <tr key={user.id} className="hover:bg-slate-50/70">
-                  <td className="px-4 py-3">
+                <tr key={user.id} className="hover:bg-slate-50">
+                  <td className="px-2 py-2.5 sm:px-3">
                     <div className="min-w-0">
                       <p className="text-[13px] font-medium text-slate-900 truncate">
                         {user.name}
                         {user.isAdmin && (
-                          <span className="ml-2 text-[10px] font-medium text-violet-600">ADMIN</span>
+                          <span className="ml-2 text-[10px] font-medium text-blue-600">ADMIN</span>
                         )}
                       </p>
                       <p className="text-[12px] text-slate-500 truncate">{user.email}</p>
                     </div>
                   </td>
-                  <td className="px-4 py-3">
+                  <td className="px-2 py-2.5 sm:px-3">
                     <span className="text-[12px] capitalize text-slate-600">{user.role}</span>
                   </td>
-                  <td className="px-4 py-3">
+                  <td className="px-2 py-2.5 sm:px-3">
                     <span
-                      className={`inline-flex items-center rounded-full px-2 py-0.5 text-[11px] font-medium ${
+                      className={`text-[12px] font-medium ${
                         !user.profileId
-                          ? "bg-slate-100 text-slate-500"
+                          ? "text-slate-500"
                           : user.isVerified
-                          ? "bg-green-50 text-green-700"
-                          : "bg-orange-50 text-orange-700"
+                          ? "text-emerald-700"
+                          : "text-amber-700"
                       }`}
                     >
                       {!user.profileId ? "Incomplete" : user.isVerified ? "Verified" : "Pending"}
                     </span>
                   </td>
-                  <td className="px-4 py-3 text-[12px] text-slate-500">{formatDate(user.createdAt)}</td>
-                  <td className="px-4 py-3">
+                  <td className="px-2 py-2.5 text-[12px] text-slate-500 sm:px-3">{formatDate(user.createdAt)}</td>
+                  <td className="px-2 py-2.5 sm:px-3">
                     <div className="flex items-center justify-end gap-1">
                       <Button
                         size="sm"
@@ -456,10 +455,9 @@ const AdminUsers = () => {
           )}
         </div>
 
-        <div className="border-t border-slate-100 px-4 py-2.5 text-[11px] text-slate-400">
+        <div className="border-t border-slate-100 pt-2.5 text-[11px] text-slate-400">
           Showing {filteredUsers.length} of {users.length}
         </div>
-      </div>
 
       {/* Edit dialog */}
       <Dialog
