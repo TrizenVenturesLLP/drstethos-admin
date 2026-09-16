@@ -2,10 +2,11 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Label } from "@/components/ui/label";
+import { Label as FormLabel } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
-import { Mail, Loader2 } from "lucide-react";
+import { Loader2, Mail } from "lucide-react";
 import { sendSupportContact } from "@/helpers/supportEmailHelper";
+import { Reveal, Label } from "@/components/landing/SectionPrimitives";
 
 const SUPPORT_EMAIL = "support@drstethos.com";
 
@@ -19,28 +20,23 @@ const Support = () => {
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setIsLoading(true);
-
     try {
       await sendSupportContact({
         name: name.trim(),
         email: email.trim(),
         message: message.trim(),
       });
-
       toast({
-        title: "Message Sent Successfully!",
+        title: "Message sent",
         description: "We'll get back to you as soon as possible.",
       });
-
       setName("");
       setEmail("");
       setMessage("");
-    } catch (error) {
-      console.error("Error sending email:", error);
-
+    } catch {
       toast({
-        title: "Failed to Send Message",
-        description: `Please try again or contact us directly at ${SUPPORT_EMAIL}`,
+        title: "Failed to send",
+        description: `Please try again or email ${SUPPORT_EMAIL}`,
         variant: "destructive",
       });
     } finally {
@@ -49,116 +45,86 @@ const Support = () => {
   };
 
   return (
-    <section className="section-y bg-secondary/50 overflow-x-hidden">
+    <section className="bg-[#F6F9F7] overflow-x-hidden py-16 md:py-24">
       <div className="page-container">
-        <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 max-w-5xl">
-          <div className="space-y-8">
-            <div>
-              <h2 className="font-display text-2xl md:text-3xl font-semibold text-foreground tracking-tight">
-                Get in touch
-              </h2>
-              <p className="mt-3 text-sm md:text-[15px] text-muted-foreground font-normal leading-relaxed">
-                Questions about hiring or jobs? We typically reply within one business day.
-              </p>
-            </div>
-
-            <div className="space-y-5 text-sm">
+        <div className="grid lg:grid-cols-2 gap-10 lg:gap-16">
+          <Reveal>
+            <Label>Contact</Label>
+            <h2 className="display-xl text-foreground">Get in touch</h2>
+            <p className="body-lg text-muted-foreground mt-4 max-w-md">
+              Questions about hiring or jobs? We typically reply within one business day.
+            </p>
+            <div className="mt-10 space-y-5 text-[15px]">
               <div>
-                <p className="font-medium text-foreground mb-0.5">Email</p>
-                <a
-                  href={`mailto:${SUPPORT_EMAIL}`}
-                  className="text-muted-foreground hover:text-primary transition-colors font-normal"
-                >
+                <p className="font-medium text-foreground">Email</p>
+                <a href={`mailto:${SUPPORT_EMAIL}`} className="text-muted-foreground hover:text-primary">
                   {SUPPORT_EMAIL}
                 </a>
               </div>
               <div>
-                <p className="font-medium text-foreground mb-0.5">Phone</p>
-                <a
-                  href="tel:+917075355969"
-                  className="text-muted-foreground hover:text-primary transition-colors font-normal"
-                >
+                <p className="font-medium text-foreground">Phone</p>
+                <a href="tel:+917075355969" className="text-muted-foreground hover:text-primary">
                   +91 70753 55969
                 </a>
               </div>
               <div>
-                <p className="font-medium text-foreground mb-0.5">Business hours</p>
-                <p className="text-muted-foreground font-normal">Monday – Friday, 9AM – 6PM IST</p>
-              </div>
-              <div>
-                <p className="font-medium text-foreground mb-0.5">Office</p>
-                <p className="text-muted-foreground leading-relaxed font-normal">
+                <p className="font-medium text-foreground">Office</p>
+                <p className="text-muted-foreground leading-relaxed">
                   DRSTETHOS INNOVATIONS LLP, Bhimavaram, Andhra Pradesh, 534201
                 </p>
               </div>
             </div>
-          </div>
+          </Reveal>
 
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div className="space-y-1.5">
-              <Label htmlFor="name" className="text-sm font-medium">
-                Your Name
-              </Label>
-              <Input
-                id="name"
-                type="text"
-                placeholder="Your name"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                required
-                className="h-10 text-sm rounded-lg"
-              />
-            </div>
-
-            <div className="space-y-1.5">
-              <Label htmlFor="email" className="text-sm font-medium">
-                Email Address
-              </Label>
-              <Input
-                id="email"
-                type="email"
-                placeholder="you@example.com"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-                className="h-10 text-sm rounded-lg"
-              />
-            </div>
-
-            <div className="space-y-1.5">
-              <Label htmlFor="message" className="text-sm font-medium">
-                Message
-              </Label>
-              <Textarea
-                id="message"
-                placeholder="How can we help?"
-                value={message}
-                onChange={(e) => setMessage(e.target.value)}
-                required
-                rows={5}
-                className="resize-none text-sm rounded-lg"
-              />
-            </div>
-
-            <Button
-              type="submit"
-              size="lg"
-              className="w-full h-10 text-sm font-semibold rounded-lg"
-              disabled={isLoading}
-            >
-              {isLoading ? (
-                <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Sending...
-                </>
-              ) : (
-                <>
-                  <Mail className="mr-2 h-4 w-4" />
-                  Send Message
-                </>
-              )}
-            </Button>
-          </form>
+          <Reveal delay={0.08}>
+            <form onSubmit={handleSubmit} className="space-y-5">
+              <div className="space-y-2">
+                <FormLabel htmlFor="name">Name</FormLabel>
+                <Input
+                  id="name"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  required
+                  className="h-12 rounded-none border-black/10 bg-white"
+                />
+              </div>
+              <div className="space-y-2">
+                <FormLabel htmlFor="email">Email</FormLabel>
+                <Input
+                  id="email"
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  required
+                  className="h-12 rounded-none border-black/10 bg-white"
+                />
+              </div>
+              <div className="space-y-2">
+                <FormLabel htmlFor="message">Message</FormLabel>
+                <Textarea
+                  id="message"
+                  value={message}
+                  onChange={(e) => setMessage(e.target.value)}
+                  required
+                  rows={5}
+                  className="rounded-none border-black/10 bg-white resize-none"
+                />
+              </div>
+              <Button type="submit" disabled={isLoading} className="h-12 rounded-full px-8 text-base font-semibold">
+                {isLoading ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Sending...
+                  </>
+                ) : (
+                  <>
+                    <Mail className="mr-2 h-4 w-4" />
+                    Send message
+                  </>
+                )}
+              </Button>
+            </form>
+          </Reveal>
         </div>
       </div>
     </section>

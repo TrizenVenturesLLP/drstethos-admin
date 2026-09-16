@@ -1,34 +1,44 @@
-import NavBar from "@/components/NavBar";
-import Hero from "@/components/Hero";
-import AboutUs from "@/components/AboutUs";
-import HowItWorks from "@/components/HowItWorks";
-import ChoosePath from "@/components/ChoosePath";
-import Pricing from "@/components/Pricing";
-import FAQ from "@/components/FAQ";
-import AppDownload from "@/components/AppDownload";
+import { useRef } from "react";
+import LandingNav from "@/components/landing/LandingNav";
+import HeroSection from "@/components/landing/HeroSection";
+import HealthcareIntro from "@/components/landing/HealthcareIntro";
+import PlatformConnection from "@/components/landing/PlatformConnection";
+import DoctorExperience from "@/components/landing/DoctorExperience";
+import HospitalExperience from "@/components/landing/HospitalExperience";
+import HowItWorksStory from "@/components/landing/HowItWorksStory";
+import ProductShowcase from "@/components/landing/ProductShowcase";
+import TrustSection from "@/components/landing/TrustSection";
+import PricingSection from "@/components/landing/PricingSection";
+import FAQSection from "@/components/landing/FAQSection";
+import FinalCTA from "@/components/landing/FinalCTA";
+import StethoscopeJourney from "@/components/landing/StethoscopeJourney";
 import Support from "@/components/Support";
 import Footer from "@/components/Footer";
+import { useLandingGsap } from "@/hooks/useLandingGsap";
 
 const Index = () => {
+  const rootRef = useRef<HTMLDivElement>(null);
+  useLandingGsap(rootRef);
+
   return (
-    <div className="landing-theme relative w-full max-w-[100vw] min-h-screen overflow-x-hidden bg-background">
-      <NavBar />
-      <div id="home">
-        <Hero />
-      </div>
-      <div id="about">
-        <AboutUs />
-      </div>
-      <div id="how-it-works">
-        <HowItWorks />
-      </div>
-      <ChoosePath />
-      <div id="pricing">
-        <Pricing />
-      </div>
-      <FAQ />
-      <AppDownload />
-      <div id="get-in-touch">
+    <div
+      ref={rootRef}
+      className="landing-theme relative w-full max-w-[100vw] min-h-screen overflow-x-hidden bg-background"
+    >
+      <LandingNav />
+      <StethoscopeJourney />
+      <HeroSection />
+      <HealthcareIntro />
+      <PlatformConnection />
+      <DoctorExperience />
+      <HospitalExperience />
+      <HowItWorksStory />
+      <ProductShowcase />
+      <TrustSection />
+      <PricingSection />
+      <FAQSection />
+      <FinalCTA />
+      <div id="get-in-touch" className="scroll-mt-20" data-scene>
         <Support />
       </div>
       <Footer />
